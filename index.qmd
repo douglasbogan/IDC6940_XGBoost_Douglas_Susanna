@@ -3,9 +3,11 @@ title: "Capstone Projects for Data Science - Spring 2026"
 subtitle: "Predicting Housing Prices with XGBoost Methodology"
 author: "Douglas Bogan and Susanna Brown (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
+engine: knitr
 format:
   html:
     code-fold: true
+    toc: true
 course: Capstone Projects in Data Science
 bibliography: references.bib # file contains bibtex for references
 #always_allow_html: true # this allows to get PDF with HTML features
@@ -18,196 +20,519 @@ editor:
     wrap: 72
 ---
 
-Slides: [slides.html](slides.html){target="_blank"} ( Go to `slides.qmd`
-to edit)
-
-::: callout-important
-
-
-**Remember:** Your goal is to make your audience understand and care
-about your findings. By crafting a compelling story, you can effectively
-communicate the value of your data science project.
-
-Carefully read this template since it has instructions and tips to
-writing!
-
-:::
+Slides: [Presentation slides](slides.html){target="_blank"}
 
 ## Introduction
 
-The ability to predict residential sale prices is a “million-dollar question” in Real Estate. Accurate valuations affect buyers, sellers, lenders, appraisers, and local governments. A reliable model can help set listing prices, underwrite mortgages, estimate tax assessments, and guide investment decisions. Therefore, better price predictions reduce the chance of overpaying or underpricing a home and make valuation models and appraisals more useful for people who actually buy, sell, or finance houses.
+The ability to predict residential sale prices is a million-dollar
+question in real estate. Accurate valuations affect buyers, sellers,
+lenders, appraisers, and local governments. A reliable model can help
+set listing prices, underwrite mortgages, estimate tax assessments, and
+guide investment decisions. Therefore, more accurate price predictions
+reduce the chances of overpaying or underpricing a home and make
+valuation models and appraisals more useful for companies and
+individuals who directly buy, sell, and/or finance properties.
 
-**The Problem** 
+**The Problem**
 
-The question that this Capstone Project intends to address is: *How well can a machine learning model like XGBoost predict sale prices using a transaction level dataset from a large metropolitan market, and which features most influence those predictions?* This project intends to achieve a model outcome that emphasizes price prediction accuracy (how close predicted prices are to actual sale prices), robustness within the market (how well the model generalizes within the same metro area), and practical value (how the model can support those involved in a Real Estate transaction).
+The question this capstone project intends to address is: *How well can
+a machine learning model like XGBoost predict sale prices using a
+transaction-level dataset from a metropolitan market, and which features
+most influence those predictions?* This project intends to achieve a
+model outcome that emphasizes price prediction accuracy (how close
+predicted prices are to actual sale prices), robustness within the
+market (how well the model generalizes within the same metro area), and
+practical value (how the model can support those involved in a real
+estate transaction).
 
-**Why a Single Market Study** 
+**Why a Single Market Study**
 
-Using one large market area is a deliberate choice. A single market dataset allows us to dig into similar local features. This includes such features as local economics, neighborhood clusters, micro market cycles, and amenities, without averaging away those various features. Several reviewed studies show that model performance and the value of specific features depend heavily on local context (see “An optimal house price prediction algorithm: XGBoost” [@sharma2024optimal] and “House price prediction using hedonic pricing model and machine learning techniques” [@zaki2022house]. By focusing on one market, this project trades broad generalization for depth. The goal is a careful and well documented application of XGBoost that produces a reliable valuation model for that market along with lessons about feature design and tuning that others can adapt.
+Using one market area is a deliberate choice. A single market dataset
+allows us to dig into similar local features. This includes such
+features as local economics, neighborhood clusters, micro-market cycles,
+and amenities, without averaging away those various features. Several
+reviewed studies show that model performance and the value of specific
+features depend heavily on local context (see “An optimal house price
+prediction algorithm: XGBoost” [@sharma2024optimal] and “House price
+prediction using hedonic pricing model and machine learning techniques”
+[@zaki2022house]). By focusing on one market, this project trades broad
+generalization for depth. The goal is a careful and well-documented
+application of XGBoost that produces a reliable valuation model for that
+market, along with lessons in feature design and parameter tuning that
+others can adapt.
 
 **Overview of Approach**
 
-This Capstone Project will take a single comprehensive transaction dataset for a large metropolitan area, perform standard cleaning and feature engineering, and train XGBoost with a practical tuning workflow that balances speed and thoroughness. If needed while tuning, certain recommendations from our research literature will be considered, including the two stage plan of screening promising hyperparameter settings on small representative subsamples, and then refining on the full dataset. This will hopefully ensure the model performs well and is computationally practical (see “A simple and fast baseline for tuning large XGBoost models” [@kapoor2021simple] and “Exploring Key XGBoost Hyperparameters” [@verma2024exploring]. The final deliverable will be a clear report of predictive performance, a discussion of the most influential features, and practical notes for deploying the XGBoost model in a chosen market.
+This project will take a single comprehensive transaction dataset for a
+metropolitan area, perform standard cleaning and feature engineering,
+and train XGBoost with a practical tuning workflow that balances speed
+and thoroughness. If needed while tuning, certain recommendations from
+our research literature will be considered, including the two-stage plan
+of screening promising hyperparameter settings on small representative
+subsamples, and then refining on the full dataset. This will hopefully
+ensure the model performs well and is computationally practical (see “A
+simple and fast baseline for tuning large XGBoost models”
+[@kapoor2021simple] and “Exploring Key XGBoost Hyperparameters”
+[@verma2024exploring]). The final deliverable will be a clear report of
+predictive performance, a discussion of the most influential features,
+and practical notes for deploying the XGBoost model in a chosen market.
 
-
-
-## Literature Review
+### Literature Review
 
 **XGBoost: System Design, Strengths, and Tuning Practices**
 
-“XGBoost: A Scalable Tree Boosting System” [@chen2016xgboost] lays out why XGBoost is a practical choice for tabular data. XGBoost is engineered for speed, handles sparse inputs, is scalable, and includes regularization that helps control overfitting. Those system level features matter in real estate data because transaction tables often include many categorical features and sparse data. Experimental and comparative work reinforces the point that XGBoost is powerful but tuning matters. “A comparative analysis of xgboost” [@bentejac2019comparative] shows XGBoost ranks highly when hyperparameters are optimized but can perform poorly with defaults. This fact encourages a careful, reproducible tuning plan.
-Practical methods to speed up the tuning process are well documented. “A simple and fast baseline for tuning large XGBoost models” [@kapoor2021simple] demonstrates that tuning on small, uniformly sampled slices often preserves the ranking of hyperparameter configurations and speeds up search dramatically. This is an attractive strategy when full training is slow. “Exploring Key XGBoost Hyperparameters” [@verma2024exploring] provides sensible starting ranges for influential parameters so tuning is less guesswork. Experimental surveys such as “Experimenting XGBoost algorithm for prediction and classification of different datasets” [@ramraj2016experimenting] highlight XGBoost’s speed advantage and the usefulness of feature important outputs for interpretation. Finally, “Research and application of XGBoost in imbalanced data” [@zhang2022research] reminds practitioners to treat distributional issues carefully, a lesson that translates to regression tasks with rare property types or extreme sale prices.
+“XGBoost: A Scalable Tree Boosting System” [@chen2016xgboost] lays out
+why XGBoost is a practical choice for tabular data. XGBoost is
+engineered for speed, handles sparse inputs, is scalable, and includes
+regularization that helps control overfitting. Those system-level
+features matter in real estate data because transaction tables often
+include many categorical features and sparse data. Experimental and
+comparative work reinforces the point that XGBoost is powerful, but
+tuning matters. “A Comparative Analysis of XGBoost”
+[@bentejac2019comparative] shows XGBoost ranks highly when
+hyperparameters are optimized, but can perform poorly with default
+values. This fact encourages a careful, reproducible tuning plan.
+Practical methods to speed up the tuning process are well documented. “A
+simple and fast baseline for tuning large XGBoost models”
+[@kapoor2021simple] demonstrates that tuning on small, uniformly sampled
+slices often preserves the ranking of hyperparameter configurations and
+dramatically speeds up search time. This is an attractive strategy when
+full training is slow. “Exploring Key XGBoost Hyperparameters”
+[@verma2024exploring] provides sensible starting ranges for influential
+parameters, so tuning is less guesswork. Experimental surveys such as
+“Experimenting XGBoost algorithm for prediction and classification of
+different datasets” [@ramraj2016experimenting] highlight XGBoost’s speed
+advantage and the usefulness of feature importance outputs for
+interpretation. Finally, “Research and application of XGBoost in
+imbalanced data” [@zhang2022research] reminds practitioners to treat
+distributional issues carefully, a lesson that translates to regression
+tasks with rare property types or extreme sale prices.
 
-**Evidence from Housing Applications: Predictive Gains and Feature Importance**
+**Evidence from Housing Applications: Predictive Gains and Feature
+Importance**
 
-Applied real estate housing studies consistently report that XGBoost improves predictive accuracy over linear hedonic models when inputs are rich and preprocessing is carefully conducted. “An optimal house price prediction algorithm: XGBoost” [@sharma2024optimal] used a real estate transaction dataset and found that XGBoost outperformed linear regression, multilayer perceptron, random forest, and SVR across R², RMSE, and cross validation metrics. The authors emphasize hyperparameter tuning and feature selection. When using smaller Kaggle datasets and municipal study datasets, others reached similar conclusions after standard cleaning and encoding, as seen in “Prediction of house price using xgboost regression algorithm” [@avanijaa2021prediction] and “House price prediction using hedonic pricing model and machine learning techniques” [@zaki2022house]. 
-Several research papers show the value of expanding the input set beyond basic MLS fields. “Deep learning with XGBoost for real estate appraisal” [@zhao2019deep] integrates image based aesthetic scores from convolutional neural networks with structured attributes and then uses XGBoost in a stacked model. This added visual quality signals and improved prediction versus tabular only baselines. “Understanding the effects of influential factors on housing prices by combining extreme gradient boosting and a hedonic price model (XGBoost HPM)” [@li2021understanding] uses XGBoost to rank predictors drawn from building records, POIs, night lights, and street images. This showed that diverse contextual features often surface as top drivers in predicting price. Another research paper, “Comparative analysis of advanced models for predicting housing prices: a review” [@moreno2025comparative], recommends pairing tree based ensembles like XGBoost with careful feature design and regional variables to maximize predictive gains.
+Applied real estate housing studies consistently report that XGBoost
+improves predictive accuracy over linear hedonic models when inputs are
+rich and preprocessing is carefully conducted. “An optimal house price
+prediction algorithm: XGBoost” [@sharma2024optimal] used a real estate
+transaction dataset and found that XGBoost outperformed linear
+regression, multilayer perceptron, random forest, and SVR across R²,
+RMSE, and cross-validation metrics. The authors emphasize hyperparameter
+tuning and feature selection. When using smaller Kaggle datasets and
+municipal study datasets, others reached similar conclusions after
+standard cleaning and encoding, as seen in “Prediction of house price
+using xgboost regression algorithm” [@avanijaa2021prediction] and “House
+price prediction using hedonic pricing model and machine learning
+techniques” [@zaki2022house]. Several research papers show the value of
+expanding the input set beyond basic MLS fields. “Deep learning with
+XGBoost for real estate appraisal” [@zhao2019deep] integrates
+image-based aesthetic scores from convolutional neural networks with
+structured attributes and then uses XGBoost in a stacked model. This
+added visual quality signals and improved prediction versus tabular-only
+baselines. “Understanding the effects of influential factors on housing
+prices by combining extreme gradient boosting and a hedonic price model
+(XGBoost HPM)” [@li2021understanding] uses XGBoost to rank predictors
+drawn from building records, POIs, night lights, and street images. This
+showed that diverse contextual features often surface as top drivers in
+predicting price. Another research paper, “Comparative analysis of
+advanced models for predicting housing prices: a review”
+[@moreno2025comparative], recommends pairing tree-based ensembles like
+XGBoost with careful feature design and regional variables to maximize
+predictive gains.
 
-**Feature Engineering, Data Scope, and Validation choices for a Single Market**
+**Feature Engineering, Data Scope, and Validation Choices for a Single
+Market**
 
-Across the research literature, feature design and data scope are as important as model choice. Research papers repeatedly call out market cycles, transit, neighborhood amenity counts, property condition, and curb appeal as high value predictors as seen in [@li2021understanding] and [@moreno2025comparative]. Other research papers, such as [@sharma2024optimal] and [@avanijaa2021prediction] document practical preprocessing to include missing value handling, outlier removal, and categorical encoding that materially affect performance. Research by [@zhao2019deep] shows image derived features can capture latent quality indicators not present in MLS fields.
-Focusing on one large market has tradeoffs but also clear advantages. Several studies warn that single city datasets limit generalization [@sharma2024optimal], [@zaki2022house]. However, that same local focus enables richer modeling of micro markets and neighborhood clusters, which are insights that are directly useful to local appraisers, assessors, and lenders. Practical tuning guidance as shown in [@kapoor2021simple] and [@verma2024exploring] along with caution about sampling assumptions in [@kapoor2021simple] and [@zhang2022research] motivate using stratified or time aware subsampling rather than naive uniform draws, so rare property types and localized regimes are not missed.
+Across the research literature, feature design and data scope are as
+important as model choice. Research papers repeatedly call out market
+cycles, transit, neighborhood amenity counts, property condition, and
+curb appeal as high-value predictors, as seen in [@li2021understanding]
+and [@moreno2025comparative]. Other research papers, such as
+[@sharma2024optimal] and [@avanijaa2021prediction], document practical
+preprocessing to include missing value handling, outlier removal, and
+categorical encoding that materially affect performance. Research by
+[@zhao2019deep] shows image-derived features can capture latent quality
+indicators not present in MLS fields. Focusing on one large market has
+tradeoffs but also clear advantages. Several studies warn that
+single-city datasets limit generalization [@sharma2024optimal],
+[@zaki2022house]. However, that same local focus enables richer modeling
+of micro-markets and neighborhood clusters, which are insights that are
+directly useful to local appraisers, assessors, and lenders. Practical
+tuning guidance as shown in [@kapoor2021simple] and
+[@verma2024exploring], along with caution about sampling assumptions in
+[@kapoor2021simple] and [@zhang2022research], motivate using stratified
+or time-aware subsampling rather than naive uniform draws, so rare
+property types and localized regimes are not missed.
 
 **Interpretability, Fairness, and Practical Deployment Considerations**
 
-Even when the project’s primary goal is prediction, stakeholders care about why the model makes certain estimates. Several research papers recommend surfacing feature rankings and checking for distributional bias. Research papers by [@ramraj2016experimenting] and [@sharma2024optimal] highlight the practical value of feature importance outputs. Additional research work by [@li2021understanding] and [@zhao2019deep] show how contextual features such as green view, transit proximity, and local economic indicators can be surfaced for planners and lenders. The research paper by [@zhang2022research] emphasizes fairness checks and handling imbalanced or rare cases, which is important when a model will be used in lending or tax assessment.
-
-
-
-
-## Research Article Summaries
-
-
-**Summary of Research Article 1 with Citation:**
-
-*Experimenting XGBoost algorithm for prediction and classification of different datasets:*
-
-This research paper gives an analysis of different advantages of XGBoost as a machine learning methodology. XGBoost is presented in this research paper as a faster, more streamlined progression of traditional Gradient Boosting, especially well‑suited for structured machine learning tasks. Across four datasets which include two classification datasets and two regression datasets, the authors show that XGBoost often matches or exceeds Gradient Boosting’s accuracy on classification problems and delivers comparable but sometimes more variable results on regression. Its biggest advantage is speed: by redesigning how trees are built and processed, XGBoost trains on data dramatically faster while still producing competitive models. The study also highlights how XGBoost’s feature‑importance outputs help interpret which variables drive predictions. The authors conclude that although XGBoost isn’t guaranteed to always be more accurate, its efficiency and practical design make it a strong choice for many real-world problems. [@ramraj2016experimenting]
-
-**Summary of Research Article 2 with Citation:**
-
-*Comparative analysis of advanced models for predicting housing prices: a review:*
-
-This review compares traditional hedonic price models (HPM) with machine learning approaches for predicting housing prices and finds a clear complementarity effect between HPM and machine learning models, such as XGBoost. HPMs remain an important tool for interpretation, revealing which property attributes like location, size, neighborhood features, and distance to centers drive value, while machine learning models deliver superior predictive accuracy by capturing non‑linear relationships and complex interactions that linear regressions miss. Tree‑based and ensemble methods dominate recent studies. Random Forest is the most frequently used model, and gradient‑boosted algorithms such as XGBoost and LightGBM often achieve the highest fit and the lowest error metrics (higher R^2, lower RMSE/MAPE) when regional or cluster variables are included. XGBoost in particular excels at handling large datasets, modeling non‑linear effects from amenities and spatial clusters, and improving fit when economic or geographic clusters are added. In several comparative studies it produced the best balance of high R^2 and low absolute error. The paper also highlights that ensembles and hybrid approaches typically outperform single models, and that predictive gains depend heavily on the quality and breadth of input variables. External contextual features (transport access, neighborhood socioeconomic indicators) materially improve results. Therefore, if seeking both interpretability and accuracy, the research paper suggests pairing HPM for explanation with tree‑based and/or boosted ML models (notably XGBoost) for prediction. This combination yields robust insight into value drivers while tightening forecasts. In conclusion, XGBoost is a strong contender as a machine learning model for house price predictions. [@moreno2025comparative]
-
-**Summary of Research Article 3 with Citation:**
-
-*A Simple and Fast Baseline for Tuning Large XGBoost Models*
-
-This research paper shows a simple, practical method to make tuning XGBoost much faster on very large tables of data: train and test on small, uniformly sampled slices of the dataset, then use those results to pick promising settings before training on the full data. The goal was to speed up hyperparameter tuning for XGBoost when datasets are huge and full training is slow. The authors of this paper found three surprising and useful things. For one, training time scales almost linearly with dataset size (so a 10% slice trains about 10× faster). Secondly, good hyperparameter choices on small slices tend to stay good on the full data (the ranking of configurations is preserved). And third, tuning on as little as 1% of the data often finds settings that, after retraining on the full set, perform nearly as well (average gap falls from ~3.3% to ~1.4%). They tested this across multiple 15–70 GB tabular datasets and showed that resource‑aware search methods like Hyperband (and Hyperband combined with Bayesian optimization) find strong models far faster than a blind random search.
-Further, the paper highlights that XGBoost continues to excel on large tabular problems. It’s scalable, robust, and surprisingly tolerant of being tuned on small, representative samples. The main limitation is that uniform subsampling assumes the data are independent, identically distributed, and representative. If the dataset has strong biases or rare subgroups, simple uniform sampling can miss them and hurt results. The authors suggest future work on smarter sampling strategies to make the approach more reliable in those cases. Overall, the takeaway is practical and optimistic: a very easy baseline of uniform subsampling plus multi‑fidelity tuning gives big speedups with only modest tradeoffs in accuracy, and reveals unexpectedly favorable behavior of XGBoost on large, real‑world tabular data. [@kapoor2021simple]
-
-**Summary of Research Article 4 with Citation:**
-
-*Prediction of House Price Using XGBoost Regression Algorithm*
-
-This research paper sets out to build a practical model that predicts house sale prices so buyers and sellers can make better decisions. The authors show that this problem matters because prices change with location, neighborhood and amenities. The author also explains how they cleaned and prepared a Kaggle dataset (about 80 features and ~1,500 records) using standard steps like filling missing values, removing outliers, and converting categories with one hot encoding. They then train an XGBoost regression model and compare different train/validation/test splits. The best split (80/10/10) produced the lowest test error (about 4.4%). The paper concludes that XGBoost improves prediction accuracy and reduces investment risk for customers. It also notes limits like that house prices vary by region and more features or deeper models could further reduce error and broaden applicability. The authors recommend expanding the database to include more cities and exploring deeper learning methods as future work. [@avanijaa2021prediction]
-
-
-**Summary of Research Article 5 with Citation:**
-
-*Exploring Key XGBoost Hyperparameters: A Study on Optimal Search Spaces and Practical Recommendations for Regression and Classification*
-
-This research paper set out to make tuning XGBoost less guesswork and more practical by identifying sensible starting ranges for four influential hyperparameters so practitioners can get strong results without wasting computational resources. This is important because XGBoost is a powerful, widely used algorithm that can handle large and messy datasets, but exhaustive tuning is slow and costly, so focused guidance saves time and resources. The authors ran experiments on several real datasets covering both regression and classification, varied each parameter across broad ranges, and evaluated model performance using standard train/test splits. Their work showed why XGBoost is effective. Its parallelized training, regularized objective, sparsity handling, and flexible loss functions make it well suited for large, noisy problems, while also demonstrating that performance depends heavily on sensible hyperparameter choices. The practical outcome is a set of recommended ranges that help avoid overfitting and unnecessary complexity, and the paper notes that more efficient Bayesian optimization methods can be used to refine tuning further. Limitations include the use of simple train/test splits rather than exhaustive cross‑validation and the remaining computational cost of tuning on very large datasets. However, the recommendations provide a clear, actionable starting point for faster, more reliable XGBoost tuning. [@verma2024exploring]
-
-
-**Summary of Research Article 6 with Citation:**
-
-*Understanding the Effects of Influential Factors on Housing Prices by Combining Extreme Gradient Boosting and a Hedonic Price Model (XGBoost-HPM)*
-
-This research paper aims to better explain why housing prices vary across a city by combining a modern machine‑learning tool (XGBoost) with a traditional economic method (the hedonic price model or HPM). The goal was to rank which factors matter most and then put dollar‑value meaning on those factors. Using multiple sources of urban data for Shenzhen to include building records, POIs, night‑lights, road networks and street‑level images, the authors used XGBoost to find the most important predictors. They then ran an HPM to quantify how those predictors relate to price. The work is important because the HPM alone struggles with nonlinearity and collinearity. However, XGBoost can detect nonlinear effects and rank variable importance. Combining both models gives both strong prediction and interpretable economic effects. Key results showed that XGBoost achieved high predictive performance and identified the top five drivers of Shenzhen prices as distance to city centre, green view index, population density, property management fee, and local economic level. The HPM confirmed that street‑level greenness (green view index) and several community and locational factors have statistically significant effects on price. Limitations noted included that the study is cross‑sectional (no temporal dynamics), street‑view scene proportions could be richer to capture perceptions, and the framework was tested only in Shenzhen so broader generalization needs data from more cities. Overall, the paper shows a practical, data‑rich way to combine XGBoost’s strength in feature selection and nonlinear modeling with HPM’s ability to estimate economic effects, producing both accurate maps of price variation and interpretable policy insights for urban planning. [@li2021understanding]
-
-
-**Summary of Research Article 7 with Citation:**
-
-*An optimal house price prediction algorithm: XGBoost*
-
-The study utilized a Kaggle.com dataset of Ames City, Iowa housing data composed of 2930 records of 82 features to predict house prices. Motivated by other studies, which were narrowly focused on model development and a classification approach (higher or lower than listed price), the authors strived instead for a regression approach focusing on optimizing the prediction model and identifying the most influential predictors. The paper highlights the economic importance of accurate predictions, such as consumer spending, borrowing capacity, investment decisions, and impacts on real estate operations, including mortgage lenders. The study was conducted following a six-stage machine learning (ML) pipeline: (1) data collection, (2) data preprocessing, (3) model training, (4) model tuning, (5) prediction and deployment, and (6) monitoring and maintain. Analysis began by comparing five methods to find the best performing model: "…linear regression (LR), multilayer perceptron (MLP), random forest regression (RF), support vector regressor (SVR), and extreme gradient boosting (XGBoost)…" (p. 33). Detailed explanations of each methods benefits, limitations, and equations were provided. XGBoost was emphasized "…based on its interpretability, simplicity, and performance accuracy" (p. 31) as well as its resistance to overfitting and ability to solve real-world problems efficiently. Initial analysis revealed that XGBoost outperformed the other models in terms of R-squared, adjusted R-squared, mean squared error (MSE), root mean squared error (RMSE), and cross-validation (CV) metrics. Each metric also had a brief description and equation listed, satisfying a goal stated in the paper, "to provide a thorough understanding of the metrics used for the model comparisons and the selection of the best-performing model" (p. 38). Similarly, the authors demonstrated the importance of hyperparameter tuning through GridSearchCV, KerasTuner, and RandomSearchCV. The model comparisons were reproduced with GridSearchCV hyperparameter tuning, again resulting in XGBoost performing the best. Feature selection was also conducted to reduce dimensionality. Noted limitations included reliance on a sole dataset, which only included one city and had unknown reliability, as well as acknowledging possible influence from infrastructure variables such as parks, hospitals, and transportation, on housing prices. [@sharma2024optimal]
-
-
-**Summary of Research Article 8 with Citation:**
-
-*XGBoost: A Scalable Tree Boosting System*
-
-In the paper, the authors focus on the advantages of XGBoost as a widely used, effective, open-source, portable, and scalable machine learning method that is resistant to overfitting. They point out several use cases for challenges on Kaggle.com including statistics surrounding 2015 challenges where XGBoost was utilized in winning challenges. The goal of the paper was to highlight optimizations for XGBoost, such as its ability to handle sparse data, speed, and scalability. To do this, the authors outline their contributions on page 2:
-"…design and build a highly scalable end-to-end tree boosting system"
-"…propose a theoretically justified weighted quantile sketch for efficient proposal calculation"
-"…introduce a novel sparsity-aware algorithm for parallel tree learning"
-"…propose an effective cache-aware block structure for out-of-core tree learning"
-The paper explains each point with figures and mathematical equations, briefly addressing limitations when applicable, but primarily focusing on the advantages of XGBoost when analyzing large data from four sources. The data chosen was split into test and training data, and ranges in size from 473,000 to 1.7 billion observations and 28 to 4227 features across tasks such as insurance claim classification, event classification, ranking, and ad click-through rate prediction to highlight the efficiency and scalability of XGBoost in real-world applications. [@chen2016xgboost]
-
-
-**Summary of Research Article 9 with Citation:**
-
-*A comparative analysis of xgboost*
-
-As the title implies, the article compares the methods random forest, gradient boosting, and eXtreme Gradient Boosting (XGBoost) and highlights the importance of parameter tuning for accuracy and speed. Furthermore, the authors explored additional goals, including identifying the most efficient combination of parameters for XGBoost and exploring alternative grids for the methods. The authors go into depth about each method, including advantages and disadvantages, as well as the attributes that were adjusted. To show the importance of a consistent and fair analysis, they not only explain this as the reason for not utilizing the built-in feature of XGBoost to handle missing values, but also detail the computer processor used to run the models. The analysis used data from 28 datasets of varying size (and missing values) from the UCI repository across different application fields. To compare the methods, first, a stratified 10-fold cross-validation with grid search was conducted on the training set to select the best parameters. In order to create a more optimized parameter combination for XGBoost, the training set was run against each possible combination of parameters among five: learning_rate, gamma, max_depth, colsample_bylevel, and subsample. Next, the default parameters for each of the three methods were compared. The analysis was concluded by calculating the generalization accuracy of the parameters found from the grid search, default, and various XGBoost results against the test data. Results across the 28 datasets showed XGBoost achieved the second-highest accuracy when using optimized (tuned) parameters, but the worst when using default parameters. Rankings determined using the Nemenyi test found similar results; XGBoost with optimized parameters was the highest average rank. Finally, XGBoost also had the fastest performance, without taking into account grid search time (because the grid sizes are different across the methods). Overall, the results effectively highlighted how often tuned or default methods perform depending on the contents of the dataset, including noise, missing values, overfitting, etc. [@bentejac2019comparative]
-
-
-**Summary of Research Article 10 with Citation:**
-
-*Deep learning with XGBoost for real estate appraisal*
-
-In the paper, the authors strive to consider unstructured and structured data to accurately predict real estate prices using a hybrid deep learning model that includes XGBoost at its topmost layer. Accuracy in real estate prices impacts many businesses and individuals – real estate agents, home buyers and sellers, insurance companies, lenders, and governments – which served as the motivation for the authors. The authors explain how XGBoost is often used in data science for image classification for things like social media and image aesthetics, leading to their data source. The unstructured data, typically high-quality property images taken by photographers, was sourced from AVA, a large database for aesthetic visual analysis, then combined with structured, factual data from an online Australian website to conduct the analysis, and the Google Maps API for geographical coordinates. Some pre-processing was done to eliminate data with low observations of photos and suburbs, and the data was split into an 80%/20% training and test set. To conduct the analysis, first, an aesthetic score was automatically assigned to the chosen property images from 1-10, 10 being the most aesthetically pleasing, based on the AVA score. AVA scores were pre-determined based on personal judgement of claimed photographers’ votes, leaving a possible objective limitation on the analysis that the authors sought to combat – the impact of appraiser or real estate agents' personal judgement in home prices. Regardless, once the scores were obtained, 4 images from each property were cropped and combined into a single larger image to extract visual contents. Next, a mean quality assessment score was assigned from the results of a hybrid model consisting of a convolutional neural network (CNN), MLP, and XGBoost, among other layers detailed in the text. Finally, these assessment scores were combined with the structured data to predict price. Evaluated against mean absolute error (MAE) and mean absolute percentage error (MAPE), XGBoost was found to be the most accurate model (compared to the K-Nearest Neighbors (KNN) algorithm) in determining housing prices from the structured and unstructured data. [@zhao2019deep]
-
-
-**Summary of Research Article 11 with Citation:**
-
-*Research and application of XGBoost in imbalanced data*
-
-The article shows that although XGBoost is a strong ensemble method, it may not be the best choice for handling imbalanced categorical data. The authors highlight the importance of such data in fields utilizing artificial intelligence (AI) and machine learning (ML), such as medicine and finance, where, for example, a category displaying non-fraudulent charges may significantly outnumber fraudulent charges. The goal of the paper was to overcome typical evaluation methods focused on accuracy that misclassify imbalanced classes and instead determine a "…higher recognition rate and better classification prediction effect." (p. 9). The data, which underwent a 70/30 split, was sourced from two datasets: (1) Taiwan credit card data from the UCI website that included one categorical variable that predicted if the member would become delinquent, and (2) credit card fraud data from ULB European machine learning labs, with a binomial category of fraud or not. The analysis encompassed three phases. First, the authors looked for missing values, performed statistical analysis, and conducted standardization. Next, outliers were examined and combined with nearby classes to locate and reduce imbalance. Finally, feature selection was performed. To conduct the analysis, an algorithm was created consisting of: support vector machine (SVM), synthetic minority over-sampling technique (SMOTE) referred to as "SVM-SMOTE", EasyEnsemble, XGBoost, Bayesian parameter optimization, and a 10 K-fold cross-validation. The algorithm was efficiently referred to as "SEB-XGB". Comparison was first made against XGBoost (with default parameters), SEB-XGB, and the algorithms formed in between, then other models RUSBoost, CatBoost, LightGBM, and EBB-XGBoost. The article discussed the methods used in the analysis in depth, in addition to the computing setup, packages used, and their versions. Evaluated on area under the curve (AUC) and G-mean values to determine feasibility and effectiveness, the SEB-XGB model performed better than XGBoost and the additional combinations/models. However, the authors did address that a limitation of the analysis was that the classification features in the data were binary, which could be impacting the results. [@zhang2022research]
-
-
-**Summary of Research Article 12 with Citation:**
-
-*House price prediction using hedonic pricing model and machine learning techniques*
-
-The study is motivated by the importance of real estate markets and property values to local governments' decision-making and to their economic growth and development. To avoid events such as the 2008 recession, new machine learning techniques (MLTs) can predict property prices more accurately, efficiently, and practically than current models, and help prevent overinflated property values. To test this, data sourced from Kaggle.com, consisting of 506 observations and 14 features of Boston, MA, was first processed by removing noisy data, performing correlation analysis, and feature encoding. Then, with a 67/33 split, the authors develop a model, estimate housing prices, and finally compare XGBoost and hedonic models using several evaluation metrics, including RMSE, recall, precision, f-measure, and sensitivity, with the end result being the R-squared score. XGBoost was found to produce double the accuracy of the hedonic model. A limitation of the study was that other adjustments (mortgage costs, insurance, historic property valuation, risk, etc.) were not considered.[@zaki2022house]
-
-
-
-
-
-
-
-
+Even when the project’s primary goal is prediction, stakeholders care
+about why the model makes certain estimates. Several research papers
+recommend surfacing feature rankings and checking for distributional
+bias. Research papers by [@ramraj2016experimenting] and
+[@sharma2024optimal] highlight the practical value of feature importance
+outputs. Additional research work by [@li2021understanding] and
+[@zhao2019deep] show how contextual features such as green view, transit
+proximity, and local economic indicators can be surfaced for planners
+and lenders. The research paper by [@zhang2022research] emphasizes
+fairness checks and handling imbalanced or rare cases, which is
+important when a model will be used in lending or tax assessment.
 
 ## Methods
-
--   Detail the models or algorithms used.
-
--   Justify your choices based on the problem and data.
 
 ## Analysis and Results
 
 ### Data Exploration and Visualization
 
--   Describe your data sources and collection process.
-
--   Present initial findings and insights through visualizations.
-
--   Highlight unexpected patterns or anomalies.
-
-
-
-```
-
 ### Modeling and Results
-
--   Explain your data preprocessing and cleaning steps.
-
--   Present your key findings in a clear and concise manner.
-
--   Use visuals to support your claims.
-
--   **Tell a story about what the data reveals.**
-
 
 ### Conclusion
 
--   Summarize your key findings.
-
--   Discuss the implications of your results.
-
 ## References
 
+::: {#refs}
+:::
+
+## Appendix
+
+### Appendix I: Research Article Summaries
+
+#### Prediction of House Price Using XGBoost Regression Algorithm
+
+This research paper sets out to build a practical model that predicts
+house sale prices so buyers and sellers can make better decisions. The
+authors show that this problem matters because prices change with
+location, neighborhood and amenities. The author also explains how they
+cleaned and prepared a Kaggle dataset (about 80 features and \~1,500
+records) using standard steps like filling missing values, removing
+outliers, and converting categories with one hot encoding. They then
+train an XGBoost regression model and compare different
+train/validation/test splits. The best split (80/10/10) produced the
+lowest test error (about 4.4%). The paper concludes that XGBoost
+improves prediction accuracy and reduces investment risk for customers.
+It also notes limits like that house prices vary by region and more
+features or deeper models could further reduce error and broaden
+applicability. The authors recommend expanding the database to include
+more cities and exploring deeper learning methods as future work
+[@avanijaa2021prediction].
+
+#### A Comparative Analysis of XGBoost
+
+As the title implies, the article compares the methods random forest,
+gradient boosting, and eXtreme Gradient Boosting (XGBoost) and
+highlights the importance of parameter tuning for accuracy and speed.
+Furthermore, the authors explored additional goals, including
+identifying the most efficient combination of parameters for XGBoost and
+exploring alternative grids for the methods. The authors go into depth
+about each method, including advantages and disadvantages, as well as
+the attributes that were adjusted. To show the importance of a
+consistent and fair analysis, they not only explain this as the reason
+for not utilizing the built-in feature of XGBoost to handle missing
+values, but also detail the computer processor used to run the models.
+The analysis used data from 28 datasets of varying size (and missing
+values) from the UCI repository across different application fields. To
+compare the methods, first, a stratified 10-fold cross-validation with
+grid search was conducted on the training set to select the best
+parameters. In order to create a more optimized parameter combination
+for XGBoost, the training set was run against each possible combination
+of parameters among five: learning_rate, gamma, max_depth,
+colsample_bylevel, and subsample. Next, the default parameters for each
+of the three methods were compared. The analysis was concluded by
+calculating the generalization accuracy of the parameters found from the
+grid search, default, and various XGBoost results against the test data.
+Results across the 28 datasets showed XGBoost achieved the
+second-highest accuracy when using optimized (tuned) parameters, but the
+worst when using default parameters. Rankings determined using the
+Nemenyi test found similar results; XGBoost with optimized parameters
+was the highest average rank. Finally, XGBoost also had the fastest
+performance, without taking into account grid search time (because the
+grid sizes are different across the methods). Overall, the results
+effectively highlighted how often tuned or default methods perform
+depending on the contents of the dataset, including noise, missing
+values, overfitting, etc [@bentejac2019comparative].
+
+#### XGBoost: A Scalable Tree Boosting System
+
+In the paper, the authors focus on the advantages of XGBoost as a widely
+used, effective, open-source, portable, and scalable machine learning
+method that is resistant to overfitting. They point out several use
+cases for challenges on Kaggle.com including statistics surrounding 2015
+challenges where XGBoost was utilized in winning challenges. The goal of
+the paper was to highlight optimizations for XGBoost, such as its
+ability to handle sparse data, speed, and scalability. To do this, the
+authors outline their contributions on page 2: "…design and build a
+highly scalable end-to-end tree boosting system" "…propose a
+theoretically justified weighted quantile sketch for efficient proposal
+calculation" "…introduce a novel sparsity-aware algorithm for parallel
+tree learning" "…propose an effective cache-aware block structure for
+out-of-core tree learning" The paper explains each point with figures
+and mathematical equations, briefly addressing limitations when
+applicable, but primarily focusing on the advantages of XGBoost when
+analyzing large data from four sources. The data chosen was split into
+test and training data, and ranges in size from 473,000 to 1.7 billion
+observations and 28 to 4227 features across tasks such as insurance
+claim classification, event classification, ranking, and ad
+click-through rate prediction to highlight the efficiency and
+scalability of XGBoost in real-world applications [@chen2016xgboost].
+
+#### A Simple and Fast Baseline for Tuning Large XGBoost Models
+
+This research paper shows a simple, practical method to make tuning
+XGBoost much faster on very large tables of data: train and test on
+small, uniformly sampled slices of the dataset, then use those results
+to pick promising settings before training on the full data. The goal
+was to speed up hyperparameter tuning for XGBoost when datasets are huge
+and full training is slow. The authors of this paper found three
+surprising and useful things. For one, training time scales almost
+linearly with dataset size (so a 10% slice trains about 10× faster).
+Secondly, good hyperparameter choices on small slices tend to stay good
+on the full data (the ranking of configurations is preserved). And
+third, tuning on as little as 1% of the data often finds settings that,
+after retraining on the full set, perform nearly as well (average gap
+falls from \~3.3% to \~1.4%). They tested this across multiple 15–70 GB
+tabular datasets and showed that resource‑aware search methods like
+Hyperband (and Hyperband combined with Bayesian optimization) find
+strong models far faster than a blind random search. Further, the paper
+highlights that XGBoost continues to excel on large tabular problems.
+It’s scalable, robust, and surprisingly tolerant of being tuned on
+small, representative samples. The main limitation is that uniform
+subsampling assumes the data are independent, identically distributed,
+and representative. If the dataset has strong biases or rare subgroups,
+simple uniform sampling can miss them and hurt results. The authors
+suggest future work on smarter sampling strategies to make the approach
+more reliable in those cases. Overall, the takeaway is practical and
+optimistic: a very easy baseline of uniform subsampling plus
+multi‑fidelity tuning gives big speedups with only modest tradeoffs in
+accuracy, and reveals unexpectedly favorable behavior of XGBoost on
+large, real‑world tabular data [@kapoor2021simple].
+
+#### Understanding the Effects of Influential Factors on Housing Prices by Combining Extreme Gradient Boosting and a Hedonic Price Model (XGBoost-HPM)
+
+This research paper aims to better explain why housing prices vary
+across a city by combining a modern machine‑learning tool (XGBoost) with
+a traditional economic method (the hedonic price model or HPM). The goal
+was to rank which factors matter most and then put dollar‑value meaning
+on those factors. Using multiple sources of urban data for Shenzhen to
+include building records, POIs, night‑lights, road networks and
+street‑level images, the authors used XGBoost to find the most important
+predictors. They then ran an HPM to quantify how those predictors relate
+to price. The work is important because the HPM alone struggles with
+nonlinearity and collinearity. However, XGBoost can detect nonlinear
+effects and rank variable importance. Combining both models gives both
+strong prediction and interpretable economic effects. Key results showed
+that XGBoost achieved high predictive performance and identified the top
+five drivers of Shenzhen prices as distance to city centre, green view
+index, population density, property management fee, and local economic
+level. The HPM confirmed that street‑level greenness (green view index)
+and several community and locational factors have statistically
+significant effects on price. Limitations noted included that the study
+is cross‑sectional (no temporal dynamics), street‑view scene proportions
+could be richer to capture perceptions, and the framework was tested
+only in Shenzhen so broader generalization needs data from more cities.
+Overall, the paper shows a practical, data‑rich way to combine XGBoost’s
+strength in feature selection and nonlinear modeling with HPM’s ability
+to estimate economic effects, producing both accurate maps of price
+variation and interpretable policy insights for urban
+planning [@li2021understanding].
+
+#### Comparative Analysis of Advanced Models for Predicting Housing Prices: a Review
+
+This review compares traditional hedonic price models (HPM) with machine
+learning approaches for predicting housing prices and finds a clear
+complementarity effect between HPM and machine learning models, such as
+XGBoost. HPMs remain an important tool for interpretation, revealing
+which property attributes like location, size, neighborhood features,
+and distance to centers drive value, while machine learning models
+deliver superior predictive accuracy by capturing non‑linear
+relationships and complex interactions that linear regressions miss.
+Tree‑based and ensemble methods dominate recent studies. Random Forest
+is the most frequently used model, and gradient‑boosted algorithms such
+as XGBoost and LightGBM often achieve the highest fit and the lowest
+error metrics (higher R\^2, lower RMSE/MAPE) when regional or cluster
+variables are included. XGBoost in particular excels at handling large
+datasets, modeling non‑linear effects from amenities and spatial
+clusters, and improving fit when economic or geographic clusters are
+added. In several comparative studies it produced the best balance of
+high R\^2 and low absolute error. The paper also highlights that
+ensembles and hybrid approaches typically outperform single models, and
+that predictive gains depend heavily on the quality and breadth of input
+variables. External contextual features (transport access, neighborhood
+socioeconomic indicators) materially improve results. Therefore, if
+seeking both interpretability and accuracy, the research paper suggests
+pairing HPM for explanation with tree‑based and/or boosted ML models
+(notably XGBoost) for prediction. This combination yields robust insight
+into value drivers while tightening forecasts. In conclusion, XGBoost is
+a strong contender as a machine learning model for house price
+predictions [@moreno2025comparative].
+
+#### Experimenting XGBoost Algorithm for Prediction and Classification of Different Datasets:
+
+This research paper gives an analysis of different advantages of XGBoost
+as a machine learning methodology. XGBoost is presented in this research
+paper as a faster, more streamlined progression of traditional Gradient
+Boosting, especially well‑suited for structured machine learning tasks.
+Across four datasets which include two classification datasets and two
+regression datasets, the authors show that XGBoost often matches or
+exceeds Gradient Boosting’s accuracy on classification problems and
+delivers comparable but sometimes more variable results on regression.
+Its biggest advantage is speed: by redesigning how trees are built and
+processed, XGBoost trains on data dramatically faster while still
+producing competitive models. The study also highlights how XGBoost’s
+feature‑importance outputs help interpret which variables drive
+predictions. The authors conclude that although XGBoost isn’t guaranteed
+to always be more accurate, its efficiency and practical design make it
+a strong choice for many real-world problems [@ramraj2016experimenting].
+
+#### An Optimal House Price Prediction Algorithm: XGBoost
+
+The study utilized a Kaggle.com dataset of Ames City, Iowa housing data
+composed of 2930 records of 82 features to predict house prices.
+Motivated by other studies, which were narrowly focused on model
+development and a classification approach (higher or lower than listed
+price), the authors strived instead for a regression approach focusing
+on optimizing the prediction model and identifying the most influential
+predictors. The paper highlights the economic importance of accurate
+predictions, such as consumer spending, borrowing capacity, investment
+decisions, and impacts on real estate operations, including mortgage
+lenders. The study was conducted following a six-stage machine learning
+(ML) pipeline: (1) data collection, (2) data preprocessing, (3) model
+training, (4) model tuning, (5) prediction and deployment, and (6)
+monitoring and maintain. Analysis began by comparing five methods to
+find the best performing model: "…linear regression (LR), multilayer
+perceptron (MLP), random forest regression (RF), support vector
+regressor (SVR), and extreme gradient boosting (XGBoost)…" (p. 33).
+Detailed explanations of each methods benefits, limitations, and
+equations were provided. XGBoost was emphasized "…based on its
+interpretability, simplicity, and performance accuracy" (p. 31) as well
+as its resistance to overfitting and ability to solve real-world
+problems efficiently. Initial analysis revealed that XGBoost
+outperformed the other models in terms of R-squared, adjusted R-squared,
+mean squared error (MSE), root mean squared error (RMSE), and
+cross-validation (CV) metrics. Each metric also had a brief description
+and equation listed, satisfying a goal stated in the paper, "to provide
+a thorough understanding of the metrics used for the model comparisons
+and the selection of the best-performing model" (p. 38). Similarly, the
+authors demonstrated the importance of hyperparameter tuning through
+GridSearchCV, KerasTuner, and RandomSearchCV. The model comparisons were
+reproduced with GridSearchCV hyperparameter tuning, again resulting in
+XGBoost performing the best. Feature selection was also conducted to
+reduce dimensionality. Noted limitations included reliance on a sole
+dataset, which only included one city and had unknown reliability, as
+well as acknowledging possible influence from infrastructure variables
+such as parks, hospitals, and transportation, on housing prices
+[@sharma2024optimal].
+
+#### Exploring Key XGBoost Hyperparameters: A Study on Optimal Search Spaces and Practical Recommendations for Regression and Classification
+
+This research paper set out to make tuning XGBoost less guesswork and
+more practical by identifying sensible starting ranges for four
+influential hyperparameters so practitioners can get strong results
+without wasting computational resources. This is important because
+XGBoost is a powerful, widely used algorithm that can handle large and
+messy datasets, but exhaustive tuning is slow and costly, so focused
+guidance saves time and resources. The authors ran experiments on
+several real datasets covering both regression and classification,
+varied each parameter across broad ranges, and evaluated model
+performance using standard train/test splits. Their work showed why
+XGBoost is effective. Its parallelized training, regularized objective,
+sparsity handling, and flexible loss functions make it well suited for
+large, noisy problems, while also demonstrating that performance depends
+heavily on sensible hyperparameter choices. The practical outcome is a
+set of recommended ranges that help avoid overfitting and unnecessary
+complexity, and the paper notes that more efficient Bayesian
+optimization methods can be used to refine tuning further. Limitations
+include the use of simple train/test splits rather than exhaustive
+cross‑validation and the remaining computational cost of tuning on very
+large datasets. However, the recommendations provide a clear, actionable
+starting point for faster, more reliable XGBoost tuning
+[@verma2024exploring].
+
+#### House Price Prediction Using Hedonic Pricing Model and Machine Learning Techniques
+
+The study is motivated by the importance of real estate markets and
+property values to local governments' decision-making and to their
+economic growth and development. To avoid events such as the 2008
+recession, new machine learning techniques (MLTs) can predict property
+prices more accurately, efficiently, and practically than current
+models, and help prevent overinflated property values. To test this,
+data sourced from Kaggle.com, consisting of 506 observations and 14
+features of Boston, MA, was first processed by removing noisy data,
+performing correlation analysis, and feature encoding. Then, with a
+67/33 split, the authors develop a model, estimate housing prices, and
+finally compare XGBoost and hedonic models using several evaluation
+metrics, including RMSE, recall, precision, f-measure, and sensitivity,
+with the end result being the R-squared score. XGBoost was found to
+produce double the accuracy of the hedonic model. A limitation of the
+study was that other adjustments (mortgage costs, insurance, historic
+property valuation, risk, etc.) were not considered [@zaki2022house].
+
+#### Research and Application of XGBoost in Imbalanced Data
+
+The article shows that although XGBoost is a strong ensemble method, it
+may not be the best choice for handling imbalanced categorical data. The
+authors highlight the importance of such data in fields utilizing
+artificial intelligence (AI) and machine learning (ML), such as medicine
+and finance, where, for example, a category displaying non-fraudulent
+charges may significantly outnumber fraudulent charges. The goal of the
+paper was to overcome typical evaluation methods focused on accuracy
+that misclassify imbalanced classes and instead determine a "…higher
+recognition rate and better classification prediction effect." (p. 9).
+The data, which underwent a 70/30 split, was sourced from two datasets:
+(1) Taiwan credit card data from the UCI website that included one
+categorical variable that predicted if the member would become
+delinquent, and (2) credit card fraud data from ULB European machine
+learning labs, with a binomial category of fraud or not. The analysis
+encompassed three phases. First, the authors looked for missing values,
+performed statistical analysis, and conducted standardization. Next,
+outliers were examined and combined with nearby classes to locate and
+reduce imbalance. Finally, feature selection was performed. To conduct
+the analysis, an algorithm was created consisting of: support vector
+machine (SVM), synthetic minority over-sampling technique (SMOTE)
+referred to as "SVM-SMOTE", EasyEnsemble, XGBoost, Bayesian parameter
+optimization, and a 10 K-fold cross-validation. The algorithm was
+efficiently referred to as "SEB-XGB". Comparison was first made against
+XGBoost (with default parameters), SEB-XGB, and the algorithms formed in
+between, then other models RUSBoost, CatBoost, LightGBM, and
+EBB-XGBoost. The article discussed the methods used in the analysis in
+depth, in addition to the computing setup, packages used, and their
+versions. Evaluated on area under the curve (AUC) and G-mean values to
+determine feasibility and effectiveness, the SEB-XGB model performed
+better than XGBoost and the additional combinations/models. However, the
+authors did address that a limitation of the analysis was that the
+classification features in the data were binary, which could be
+impacting the results [@zhang2022research].
+
+#### Deep Learning with XGBoost for Real Estate Appraisal
+
+In the paper, the authors strive to consider unstructured and structured
+data to accurately predict real estate prices using a hybrid deep
+learning model that includes XGBoost at its topmost layer. Accuracy in
+real estate prices impacts many businesses and individuals – real estate
+agents, home buyers and sellers, insurance companies, lenders, and
+governments – which served as the motivation for the authors. The
+authors explain how XGBoost is often used in data science for image
+classification for things like social media and image aesthetics,
+leading to their data source. The unstructured data, typically
+high-quality property images taken by photographers, was sourced from
+AVA, a large database for aesthetic visual analysis, then combined with
+structured, factual data from an online Australian website to conduct
+the analysis, and the Google Maps API for geographical coordinates. Some
+pre-processing was done to eliminate data with low observations of
+photos and suburbs, and the data was split into an 80%/20% training and
+test set. To conduct the analysis, first, an aesthetic score was
+automatically assigned to the chosen property images from 1-10, 10 being
+the most aesthetically pleasing, based on the AVA score. AVA scores were
+pre-determined based on personal judgement of claimed photographers’
+votes, leaving a possible objective limitation on the analysis that the
+authors sought to combat – the impact of appraiser or real estate
+agents' personal judgement in home prices. Regardless, once the scores
+were obtained, 4 images from each property were cropped and combined
+into a single larger image to extract visual contents. Next, a mean
+quality assessment score was assigned from the results of a hybrid model
+consisting of a convolutional neural network (CNN), MLP, and XGBoost,
+among other layers detailed in the text. Finally, these assessment
+scores were combined with the structured data to predict price.
+Evaluated against mean absolute error (MAE) and mean absolute percentage
+error (MAPE), XGBoost was found to be the most accurate model (compared
+to the K-Nearest Neighbors (KNN) algorithm) in determining housing
+prices from the structured and unstructured data [@zhao2019deep].
