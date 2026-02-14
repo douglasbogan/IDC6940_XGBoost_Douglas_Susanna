@@ -1,6 +1,6 @@
 ---
-title: "Capstone Projects for Data Science - Spring 2026"
-subtitle: "Predicting Housing Prices with XGBoost Methodology"
+title: "Predicting Housing Prices with XGBoost Methodology"
+subtitle: "Capstone Projects for Data Science - Spring 2026"
 author: "Douglas Bogan and Susanna Brown (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
 engine: knitr
@@ -184,6 +184,9 @@ important when a model will be used in lending or tax assessment.
 
 ### Data Exploration and Visualization
 
+[Kaggle:
+house-prices-advanced-regression-dataset](https://www.kaggle.com/datasets/hassanjameelahmed/house-prices-advanced-regression-dataset)
+
 ### Modeling and Results
 
 ### Conclusion
@@ -260,20 +263,26 @@ cases for challenges on Kaggle.com including statistics surrounding 2015
 challenges where XGBoost was utilized in winning challenges. The goal of
 the paper was to highlight optimizations for XGBoost, such as its
 ability to handle sparse data, speed, and scalability. To do this, the
-authors outline their contributions on page 2: "…design and build a
-highly scalable end-to-end tree boosting system" "…propose a
-theoretically justified weighted quantile sketch for efficient proposal
-calculation" "…introduce a novel sparsity-aware algorithm for parallel
-tree learning" "…propose an effective cache-aware block structure for
-out-of-core tree learning" The paper explains each point with figures
-and mathematical equations, briefly addressing limitations when
-applicable, but primarily focusing on the advantages of XGBoost when
-analyzing large data from four sources. The data chosen was split into
-test and training data, and ranges in size from 473,000 to 1.7 billion
-observations and 28 to 4227 features across tasks such as insurance
-claim classification, event classification, ranking, and ad
-click-through rate prediction to highlight the efficiency and
-scalability of XGBoost in real-world applications [@chen2016xgboost].
+authors outline their contributions on page 2:
+
+-   "…design and build a highly scalable end-to-end tree boosting
+    system"
+-   "…propose a theoretically justified weighted quantile sketch for
+    efficient proposal calculation"
+-   "…introduce a novel sparsity-aware algorithm for parallel tree
+    learning"
+-   "…propose an effective cache-aware block structure for out-of-core
+    tree learning"
+
+The paper explains each point with figures and mathematical equations,
+briefly addressing limitations when applicable, but primarily focusing
+on the advantages of XGBoost when analyzing large data from four
+sources. The data chosen was split into test and training data, and
+ranges in size from 473,000 to 1.7 billion observations and 28 to 4227
+features across tasks such as insurance claim classification, event
+classification, ranking, and ad click-through rate prediction to
+highlight the efficiency and scalability of XGBoost in real-world
+applications [@chen2016xgboost].
 
 #### A Simple and Fast Baseline for Tuning Large XGBoost Models
 
@@ -292,18 +301,19 @@ after retraining on the full set, perform nearly as well (average gap
 falls from \~3.3% to \~1.4%). They tested this across multiple 15–70 GB
 tabular datasets and showed that resource‑aware search methods like
 Hyperband (and Hyperband combined with Bayesian optimization) find
-strong models far faster than a blind random search. Further, the paper
-highlights that XGBoost continues to excel on large tabular problems.
-It’s scalable, robust, and surprisingly tolerant of being tuned on
-small, representative samples. The main limitation is that uniform
-subsampling assumes the data are independent, identically distributed,
-and representative. If the dataset has strong biases or rare subgroups,
-simple uniform sampling can miss them and hurt results. The authors
-suggest future work on smarter sampling strategies to make the approach
-more reliable in those cases. Overall, the takeaway is practical and
-optimistic: a very easy baseline of uniform subsampling plus
-multi‑fidelity tuning gives big speedups with only modest tradeoffs in
-accuracy, and reveals unexpectedly favorable behavior of XGBoost on
+strong models far faster than a blind random search.
+
+Further, the paper highlights that XGBoost continues to excel on large
+tabular problems. It’s scalable, robust, and surprisingly tolerant of
+being tuned on small, representative samples. The main limitation is
+that uniform subsampling assumes the data are independent, identically
+distributed, and representative. If the dataset has strong biases or
+rare subgroups, simple uniform sampling can miss them and hurt results.
+The authors suggest future work on smarter sampling strategies to make
+the approach more reliable in those cases. Overall, the takeaway is
+practical and optimistic: a very easy baseline of uniform subsampling
+plus multi‑fidelity tuning gives big speedups with only modest tradeoffs
+in accuracy, and reveals unexpectedly favorable behavior of XGBoost on
 large, real‑world tabular data [@kapoor2021simple].
 
 #### Understanding the Effects of Influential Factors on Housing Prices by Combining Extreme Gradient Boosting and a Hedonic Price Model (XGBoost-HPM)
@@ -332,8 +342,8 @@ only in Shenzhen so broader generalization needs data from more cities.
 Overall, the paper shows a practical, data‑rich way to combine XGBoost’s
 strength in feature selection and nonlinear modeling with HPM’s ability
 to estimate economic effects, producing both accurate maps of price
-variation and interpretable policy insights for urban
-planning [@li2021understanding].
+variation and interpretable policy insights for urban planning
+[@li2021understanding].
 
 #### Comparative Analysis of Advanced Models for Predicting Housing Prices: a Review
 
