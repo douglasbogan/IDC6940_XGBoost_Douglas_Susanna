@@ -1,0 +1,37 @@
+Name,Description,Format/Units/Rating
+LotFrontage (stored as object),Distance of street connected to the property,Linear feet
+LotArea,Lot size,Square feet
+OverallQual,Overall material & finish quality rating,"10=Very excellent, 9=Excellent, 8=Very good, 7=Good, 6=Above average, 5=Average, 4=Below average, 3=Fair, 2=Poor, 1=Very poor"
+OverallCond,Overall condition rating,"10=Very excellent, 9=Excellent, 8=Very good, 7=Good, 6=Above average, 5=Average, 4=Below average, 3=Fair, 2=Poor, 1=Very poor"
+YearBuilt,Original construction year,YYYY
+YearRemodAdd,Remodel year (same as construction date if none),YYYY
+MasVnrArea (stored as object),Masonry veneer area,Square feet
+BsmtFinSF1,Finished basement area,Square feet
+BsmtFinSF2 (if type2),Finished basement area,Square feet
+BsmtUnfSF,Unfinished basement area,Square feet
+TotalBsmtSF,Total basement area,Square feet
+1stFlrSF (1st),Area of floor level,Square feet
+2ndFlrSF (2nd),Area of floor level,Square feet
+LowQualFinSF,"Low quality finished area, all floors",Square feet
+GrLivArea,Above grade (ground) living area,Square feet
+BsmtFullBath,Number of basement full bathrooms,
+BsmtHalfBath,Number of basement half bathrooms,
+FullBath,Number of full bathrooms above ground,
+HalfBath,Number of half baths above ground,
+BedroomAbvGr,Number of bedrooms above basement level,
+KitchenAbvGr,Number of kitchens above ground,
+TotRmsAbvGrd,Number of rooms above ground (not including bathrooms),
+Fireplaces,Number of fireplaces,
+GarageYrBlt (stored as object),Year garage was built,YYYY
+GarageCars,Garage car capacity,
+GarageArea,Size of garage,Square feet
+WoodDeckSF,Wood deck area,Square feet
+OpenPorchSF,Open porch area,Square feet
+EnclosedPorch,Enclosed porch area,Square feet
+3SsnPorch,3-season porch area,Square feet
+ScreenPorch,Screen porch area,Square feet
+PoolArea,Pool area,Square feet
+MiscVal,Value of miscellaneous feature,U.S. Dollar ($)
+MoSold,Month of sale,MM
+YrSold,Year of sale,YYYY
+SalePrice,"The sale price, target variable",U.S. Dollar ($)

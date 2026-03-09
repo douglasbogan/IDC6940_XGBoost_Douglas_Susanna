@@ -273,8 +273,9 @@ property sales prices.
 The train.csv data contains 1,460 records with details regarding
 residential properties collected from the Ames Assessor’s Office in
 Ames, Iowa. There are 81 features (including the unique identifier
-“Id”), detailed in [@tbl-variables] below, as defined from the original
-Kaggle competition data_description.txt file located on
+“Id”), detailed in [@tbl-variables] and [@tbl-variables2] below, as
+defined from the original Kaggle competition data_description.txt file
+located on
 [GitHub](https://raw.githubusercontent.com/rehassachdeva/House-Prices-Advanced-Regression-Techniques---Kaggle-Competition/refs/heads/master/data_description.txt).
 Since several categorical variables contain a category NA that is
 treated as null by the pandas library, the NA filter is set to False
@@ -285,8 +286,8 @@ data have been removed from the table below.
 ```{r}
 #| message: false
 #| warning: false
-# library to run python
-library(reticulate)
+
+library(reticulate) # library to run python
 py_require(c("pandas", "numpy", "matplotlib", "seaborn"))
 pd = import("pandas")
 np = import("numpy")
@@ -297,28 +298,20 @@ sns = import("seaborn")
 ```{python}
 #| message: false
 #| warning: false
+#| output: false
+
 # packages
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-```
 
-```{python}
-#| message: false
-#| warning: false
-#| output: false
 # load data
 raw = pd.read_csv('https://raw.githubusercontent.com/douglasbogan/IDC6940_XGBoost_Douglas_Susanna/refs/heads/main/train.csv', na_filter=False)
 
-# variables, data type, null
+# view variables, data type, null
 raw.info()
-```
 
-```{python}
-#| message: false
-#| warning: false
-#| output: false
 # specify the categorical columns
 categorical_columns = raw[['MSSubClass', 'MSZoning', 'Street', 'Alley', 'LotShape', 'LandContour', 'Utilities', 'LotConfig', 'LandSlope', 'Neighborhood', 'Condition1', 'Condition2', 'BldgType', 'HouseStyle', 'RoofStyle', 'RoofMatl', 'Exterior1st', 'Exterior2nd', 'MasVnrType', 'ExterQual', 'ExterCond', 'Foundation', 'BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2', 'Heating', 'HeatingQC', 'CentralAir', 'Electrical', 'KitchenQual', 'Functional', 'FireplaceQu', 'GarageType', 'GarageFinish', 'GarageQual', 'GarageCond', 'PavedDrive', 'PoolQC', 'Fence', 'MiscFeature', 'SaleType', 'SaleCondition']]
 
@@ -327,308 +320,30 @@ for col in categorical_columns:
     print(f"Unique values in '{col}': {raw[col].unique()}")
 ```
 
-::: {#tbl-variables layout-ncol="1"}
-+---------------+------------------------------------------------------+
-| **Name**      | **Description**                                      |
-+:=============:+:====================================================:+
-| MSSubClass    | Type of dwelling, as a code (PUD: Planned Unit       |
-|               | Development) (20=1 story 1946-recent, 30=1 story     |
-| (stored as    | 1945 or older, 40=1 story w/finished attic, 45=1.5   |
-| int64)        | story unfinished, 50=1.5 story finished, 60=2 story  |
-|               | 1946-recent, 70=2 story 1945 or older, 75=2.5 story, |
-|               | 80=Split/multi-level, 85=Split foyer, 90=Duplex,     |
-|               | 120=1 story PUD 1946-recent, 160=2 story PUD         |
-|               | 1946-recent, 180=Multilevel PUD including            |
-|               | split-level/foyer, 190=2 family conversion)          |
-+---------------+------------------------------------------------------+
-| MSZoning      | General zoning classification (C=Commercial,         |
-|               | FV=Floating village residential, RH=Residential      |
-|               | high-density, RL=Residential low-density,            |
-|               | RM=Residential medium density)                       |
-+---------------+------------------------------------------------------+
-| Street        | Type of road access (Grvl=Gravel, Pave=Paved)        |
-+---------------+------------------------------------------------------+
-| Alley         | Type of alley access (Grvl=Gravel, Pave=Paved, NA=   |
-|               | None)                                                |
-+---------------+------------------------------------------------------+
-| LotShape      | Property shape (Reg=Regular, IR1=Slightly irregular, |
-|               | IR2=Moderately irregular, IR3=Irregular)             |
-+---------------+------------------------------------------------------+
-| LandContour   | Flatness of the property (Lvl=Near flat/level,       |
-|               | Bnk=Banked - Quick & significant rise from street to |
-|               | building, HLS=Hillside - Significant slope side to   |
-|               | side, Low=Depression)                                |
-+---------------+------------------------------------------------------+
-| Utilities     | Utilities available (AllPub=Public electric & gas &  |
-|               | water & sewer, NoSeWa=Electric & gas)                |
-+---------------+------------------------------------------------------+
-| LotConfig     | Lot configuration (Inside, Corner,                   |
-|               | CulDSac=Cul-de-sac, FR2=Frontage on 2 sides,         |
-|               | FR3=Frontage on 3 sides)                             |
-+---------------+------------------------------------------------------+
-| LandSlope     | Slope of property (Gtl=Gentle, Mod=Moderate,         |
-|               | Sev=Severe)                                          |
-+---------------+------------------------------------------------------+
-| Neighborhood  | Physical location in Ames city limit                 |
-|               | (Blmngtn=Bloomington Heights, Blueste=Bluestem,      |
-|               | BrDale=Briardale, BrkSide=Brookside, ClearCr=Clear   |
-|               | Creek, CollgCr=College Creek, Crawfor=Crawford,      |
-|               | Edwards, Gilbert, IDOTRR=Iowa DOT & rail road,       |
-|               | MeadowV=Meadow Village, Mitchel=Mitchell,            |
-|               | NAmes=North Ames, NoRidge=Northridge,                |
-|               | NPkVill=Northpark Villa, NridgHt=Northridge Heights, |
-|               | NWAmes=Northwest Ames, OldTown=Old Town, SWISU=SW of |
-|               | Iowa State University, Sawyer, SawyerW=Sawyer West,  |
-|               | Somerst=Somerset, StoneBr=Stone Brook,               |
-|               | Timber=Timberland, Veenker)                          |
-+---------------+------------------------------------------------------+
-| Condition1    | Proximity to condition (RR: Railroad)                |
-|               | (Artery=Adjacent to arterial street, Feedr=Adjacent  |
-| Condition2    | to feeder street, Norm=Normal, RRNn= Within 200 feet |
-| (if more than | of North-South RR, RRAn=Adjacent to North-South RR,  |
-| 1)            | PosN=Near positive off-site feature (park,           |
-|               | greenbelt, etc.), PosA=Adjacent to positive off-site |
-|               | feature, RRNe=Within 200 feet of East-West RR,       |
-|               | RRAe=Adjacent to East-West RR)                       |
-+---------------+------------------------------------------------------+
-| BldgType      | Dwelling type (1Fam=1 family detached, 2FmCon=2      |
-|               | family conversion from 1 family, Duplx=Duplex,       |
-|               | TwnhsE=Townhouse end unit, TwnhsI=Townhouse inside   |
-|               | unit)                                                |
-+---------------+------------------------------------------------------+
-| HouseStyle    | Style of dwelling (1Story=1 story, 1.5Fin=1.5 story, |
-|               | 2nd level finished, 1.5Unf=1.5 story, 2nd level      |
-|               | unfinished, 2Story=2 story, 2.5Fin=2.5 story, 2nd    |
-|               | level finished, 2.5Unf=2.5 story, 2nd level          |
-|               | unfinished, SFoyer=Split foyer, SLvl=Split level)    |
-+---------------+------------------------------------------------------+
-| RoofStyle     | Roof style (Flat, Gable, Gambrel=Gabriel (Barn),     |
-|               | Hip, Mansard, Shed)                                  |
-+---------------+------------------------------------------------------+
-| RoofMatl      | Roof material (ClyTile=Clay/Tile, CompShg=Standard   |
-|               | (composite) shingle, Membran=Membrane, Metal, Roll,  |
-|               | Tar&Grv=Gravel & tar, WdShake=Wood shakes,           |
-|               | WdShngl=Wood shingles)                               |
-+---------------+------------------------------------------------------+
-| Exterior1st   | Exterior material (AsbShng=Asbestos shingles,        |
-|               | AsphShn=Asphalt shingles, BrkComm=Brick common,      |
-| Exterior2nd   | BrkFace=Brick face, CBlock=Cinder block,             |
-| (if more than | CemntBd=Cement board, HdBoard=Hard board,            |
-| 1)            | ImStucc=Imitation stucco, MetalSd=Metal siding,      |
-|               | Other, Plywood, Stone, Stucco, VinylSd=Vinyl siding, |
-|               | Wd Sdng=Wood siding, WdShing=Wood shingles)          |
-+---------------+------------------------------------------------------+
-| MasVnrType    | Masonry veneer type (BrkCmn=Brick common,            |
-|               | BrkFace=Brick face, None, Stone)                     |
-+---------------+------------------------------------------------------+
-| ExterQual     | Exterior material quality (Ex=Excellent, Gd=Good,    |
-|               | TA=Average/Typical, Fa=Fair)                         |
-+---------------+------------------------------------------------------+
-| ExterCond     | Present condition of exterior material               |
-|               | (Ex=Excellent, Gd=Good, TA=Average/Typical, Fa=Fair, |
-|               | Po=Poor)                                             |
-+---------------+------------------------------------------------------+
-| Foundation    | Type of foundation (BrkTil=Brick & tile,             |
-|               | CBlock=Cinder block, PConc=Poured concrete, Slab,    |
-|               | Stone, Wood)                                         |
-+---------------+------------------------------------------------------+
-| BsmtQual      | Evaluation of basement height (Ex=Excellent - 100+   |
-|               | inches, Gd=Good - 90-99 inches, TA=Typical - 80-89   |
-|               | inches, Fa=Fair - 70-79 inches, NA=No basement)      |
-+---------------+------------------------------------------------------+
-| BsmtCond      | General condition of the basement (Gd=Good,          |
-|               | TA=Typical - slight dampness allowed, Fa=Fair -      |
-|               | dampnes s/cracking/settling, Po=Poor - severe cracki |
-|               | ng/settling/wetness, NA=No basement)                 |
-+---------------+------------------------------------------------------+
-| BsmtExposure  | Exposure of walkout/garden level basement walls      |
-|               | (split levels/foyers typically score average or      |
-|               | above) (Gd=Good, Av=Average, Mn=Minimum, No=None,    |
-|               | NA=No basement)                                      |
-+---------------+------------------------------------------------------+
-| BsmtFinType1  | Quality of basement finished area (GLQ=Good living   |
-|               | quarters, ALQ=Average living quarters, BLQ=Below     |
-| BsmtFinType2  | average living quarters, Rec=Average rec room,       |
-| (if more than | LwQ=Low quality, Unf=Unfinshed, NA=No basement)      |
-| 1 type)       |                                                      |
-+---------------+------------------------------------------------------+
-| Heating       | Type of heating (Floor=Floor furnace, GasA=Gas       |
-|               | forced warm air furnace, GasW=Gas hot water or steam |
-|               | heat, Grav=Gravity furnace, OthW=Hot water/steam     |
-|               | heat other than gas, Wall=Wall furnace)              |
-+---------------+------------------------------------------------------+
-| HeatingQC     | Heating quality & condition (Ex=Excellent, Gd=Good,  |
-|               | TA=Average/Typical, Fa=Fair, Po=Poor)                |
-+---------------+------------------------------------------------------+
-| CentralAir    | Central air conditioning (N=No, Y=Yes)               |
-+---------------+------------------------------------------------------+
-| Electrical    | Electrical system (SBrkr=Standard circuit breakers & |
-|               | Romex, FuseA=Average - Fuse box over 60 AMP & all    |
-|               | Romex, FuseF= Fair - 60 AMP fuse box & mostly Romex, |
-|               | FuseP=Poor - 60 AMP fuse box & mostly knob & tube,   |
-|               | Mix=Mixed)                                           |
-+---------------+------------------------------------------------------+
-| KitchenQual   | Kitchen quality (Ex=Excellent, Gd=Good,              |
-|               | TA=Average/Typical, Fa=Fair)                         |
-+---------------+------------------------------------------------------+
-| Functional    | Home functionality rating (assume typical unless     |
-|               | deductions warranted) (Typ=Typical, Min1=Minor       |
-|               | deductions 1, Min2=Minor 2, Mod=Moderate deductions, |
-|               | Maj1=Major deductions 1, Maj2=Major 2, Sev=Severely  |
-|               | damaged)                                             |
-+---------------+------------------------------------------------------+
-| FireplaceQu   | Fireplace quality (Ex=Excellent - Exceptional        |
-|               | masonry fireplace, Gd=Good - Masonry fireplace in    |
-|               | main level, TA=Average - Prefabricated fireplace in  |
-|               | main living area/Masonry fireplace in basement,      |
-|               | Fa=Fair - Prefabricated fireplace in basement,       |
-|               | Po=Poor - Ben Franklin stove, NA=No fireplace)       |
-+---------------+------------------------------------------------------+
-| GarageType    | Garage type (2Types=More than 1 type,                |
-|               | Attchd=Attached to home, Basment=Basement,           |
-|               | BuiltIn=Built-In (part of house - typically has room |
-|               | above garage), CarPort=Car Port, Detchd=Detached     |
-|               | from home, NA=No garage)                             |
-+---------------+------------------------------------------------------+
-| GarageFinish  | Garage interior (Fin=Finished, RFn=Rough finished,   |
-|               | Unf=Unfinished, NA=No garage)                        |
-+---------------+------------------------------------------------------+
-| GarageQual    | Garage quality (Ex=Excellent, Gd=Good,               |
-|               | TA=Typical/Average, Fa=Fair, Po=Poor, NA=No garage)  |
-+---------------+------------------------------------------------------+
-| GarageCond    | Garage condition (Ex=Excellent, Gd=Good,             |
-|               | TA=Typical/Average, Fa=Fair, Po=Poor, NA=No garage)  |
-+---------------+------------------------------------------------------+
-| PavedDrive    | Driveway type (Y=Paved, P=Partial pavement,          |
-|               | N=Dirt/Gravel)                                       |
-+---------------+------------------------------------------------------+
-| PoolQC        | Pool quality (Ex=Excellent, Gd=Good, Fa=Fair, NA=No  |
-|               | pool)                                                |
-+---------------+------------------------------------------------------+
-| Fence         | Fence quality (GdPrv=Good privacy, MnPrv=Minimum     |
-|               | privacy, GdWo=Good wood, MnWw=Minimum wood/wire,     |
-|               | NA=No fence)                                         |
-+---------------+------------------------------------------------------+
-| MiscFeature   | Miscellaneous feature not covered in other           |
-|               | categories (Gar2=2nd Garage not described in garage  |
-|               | section, Othr=Other, Shed=Shed more than 100 square  |
-|               | feet, TenC=Tennis court, NA=None)                    |
-+---------------+------------------------------------------------------+
-| SaleType      | Type of sale (WD=Warranty Deed, conventional,        |
-|               | CWD=Warranty Deed, cash, New=New construction home,  |
-|               | COD=Court Officer Deed/Estate, Con=Contract 15%      |
-|               | down, regular terms, ConLw=Contract low down payment |
-|               | & low interest, ConLI=Contract low interest,         |
-|               | ConLD=Contract low down, Oth=Other)                  |
-+---------------+------------------------------------------------------+
-| SaleCondition | Condition of sale (Normal, Abnorml=Abnormal - trade, |
-|               | foreclosure, short sale, AdjLand=Adjoining land      |
-|               | purchase, Alloca=Allocation - 2 linked properties    |
-|               | w/separate deeds, typically condo & garage,          |
-|               | Family=Sale between family members, Partial=Home not |
-|               | yet completed at last assessment, associated w/new   |
-|               | homes)                                               |
-+---------------+------------------------------------------------------+
+::: {#tbl-variables}
+```{r}
+library(DT)
+#| message: false
+#| warning: false
+Cat = read.csv("Categorical_Description.csv")
+datatable(Cat, options = list(pageLength = 5), rownames = FALSE, filter = 'top')
+```
 
-: Categorical variables in the dataset
+Categorical Variables in the Dataset
+:::
 
-+---------------+------------------------------------------------------+
-| **Name**      | **Description**                                      |
-+:=============:+:====================================================:+
-| LotFrontage   | Distance (linear feet) of street connected to the    |
-|               | property                                             |
-| (stored as    |                                                      |
-| object)       |                                                      |
-+---------------+------------------------------------------------------+
-| LotArea       | Lot size (square feet)                               |
-+---------------+------------------------------------------------------+
-| OverallQual   | Overall material & finish quality ratin (10=Very     |
-|               | excellent, 9=Excellent, 8=Very good, 7=Good, 6=Above |
-|               | average, 5=Average, 4=Below average, 3=Fair, 2=Poor, |
-|               | 1=Very poor)                                         |
-+---------------+------------------------------------------------------+
-| OverallCond   | Overall condition rating (1=Very poor to 10=Very     |
-|               | excellent)                                           |
-+---------------+------------------------------------------------------+
-| YearBuilt     | Original construction year (YYYY)                    |
-+---------------+------------------------------------------------------+
-| YearRemodAdd  | Remodel year (same as construction date if none)     |
-|               | (YYYY)                                               |
-+---------------+------------------------------------------------------+
-| MasVnrArea    | Masonry veneer area (square feet)                    |
-|               |                                                      |
-| (stored as    |                                                      |
-| object)       |                                                      |
-+---------------+------------------------------------------------------+
-| BsmtFinSF1    | Finished basement area (square feet)                 |
-|               |                                                      |
-| BsmtFinSF2    |                                                      |
-| (if type2)    |                                                      |
-+---------------+------------------------------------------------------+
-| BsmtUnfSF     | Unfinished basement area (square feet)               |
-+---------------+------------------------------------------------------+
-| TotalBsmtSF   | Total basement area (square feet)                    |
-+---------------+------------------------------------------------------+
-| 1stFlrSF      | Area of floor level (square feet)                    |
-| (1st)         |                                                      |
-|               |                                                      |
-| 2ndFlrSF      |                                                      |
-| (2nd)         |                                                      |
-+---------------+------------------------------------------------------+
-| LowQualFinSF  | Low quality finished area, all floors (square feet)  |
-+---------------+------------------------------------------------------+
-| GrLivArea     | Above grade (ground) living area (square feet)       |
-+---------------+------------------------------------------------------+
-| BsmtFullBath  | Number of basement full bathrooms                    |
-+---------------+------------------------------------------------------+
-| BsmtHalfBath  | Number of basement half bathrooms                    |
-+---------------+------------------------------------------------------+
-| FullBath      | Number of full bathrooms above ground                |
-+---------------+------------------------------------------------------+
-| HalfBath      | Number of half baths above ground                    |
-+---------------+------------------------------------------------------+
-| BedroomAbvGr  | Number of bedrooms above basement level              |
-+---------------+------------------------------------------------------+
-| KitchenAbvGr  | Number of kitchens above ground                      |
-+---------------+------------------------------------------------------+
-| TotRmsAbvGrd  | Number of rooms above ground (not including          |
-|               | bathrooms)                                           |
-+---------------+------------------------------------------------------+
-| Fireplaces    | Number of fireplaces                                 |
-+---------------+------------------------------------------------------+
-| GarageYrBlt   | Year garage was built (YYYY)                         |
-|               |                                                      |
-| (stored as    |                                                      |
-| object)       |                                                      |
-+---------------+------------------------------------------------------+
-| GarageCars    | Garage car capacity                                  |
-+---------------+------------------------------------------------------+
-| GarageArea    | Size of garage (square feet)                         |
-+---------------+------------------------------------------------------+
-| WoodDeckSF    | Wood deck area (square feet)                         |
-+---------------+------------------------------------------------------+
-| OpenPorchSF   | Open porch area (square feet)                        |
-+---------------+------------------------------------------------------+
-| EnclosedPorch | Enclosed porch area (square feet)                    |
-+---------------+------------------------------------------------------+
-| 3SsnPorch     | 3-season porch area (square feet)                    |
-+---------------+------------------------------------------------------+
-| ScreenPorch   | Screen porch area (square feet)                      |
-+---------------+------------------------------------------------------+
-| PoolArea      | Pool area (square feet)                              |
-+---------------+------------------------------------------------------+
-| MiscVal       | Value of miscellaneous feature (\$)                  |
-+---------------+------------------------------------------------------+
-| MoSold        | Month of sale (MM)                                   |
-+---------------+------------------------------------------------------+
-| YrSold        | Year of sale (YYYY)                                  |
-+---------------+------------------------------------------------------+
-| SalePrice     | The sale price (\$), target variable                 |
-+---------------+------------------------------------------------------+
+------------------------------------------------------------------------
 
-: Numerical variables in the dataset
+::: {#tbl-variables2}
+```{r}
+library(DT)
+#| message: false
+#| warning: false
+Numb = read.csv("Numerical_Description.csv")
+datatable(Numb, options = list(pageLength = 10), rownames = FALSE, filter = 'top')
+```
 
-Variables in the dataset
+Numerical variables in the dataset
 :::
 
 From the information, it is observed that MSSubClass is listed as an
