@@ -343,7 +343,7 @@ Numb = read.csv("Numerical_Description.csv")
 datatable(Numb, options = list(pageLength = 10), rownames = FALSE, filter = 'top')
 ```
 
-Numerical variables in the dataset
+Numerical Variables in the Dataset
 :::
 
 From the information, it is observed that MSSubClass is listed as an
