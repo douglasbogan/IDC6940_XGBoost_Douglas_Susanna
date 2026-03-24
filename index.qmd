@@ -287,12 +287,9 @@ data have been removed from the table below.
 #| message: false
 #| warning: false
 
-library(reticulate) # library to run python
-py_require(c("pandas", "numpy", "matplotlib", "seaborn"))
-pd = import("pandas")
-np = import("numpy")
-plt = import("matplotlib")
-sns = import("seaborn")
+# run these two comments below in the console
+#library(reticulate) # library to run python
+#py_install(c("numpy", "matplotlib", "seaborn", "xgboost", "scikit-learn", "plotly", "psutil"))
 ```
 
 ```{python}
@@ -305,6 +302,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import xgboost as xgb
+import plotly.express as px
+import time
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import mean_squared_error, r2_score
+from datetime import timedelta
 
 # load data
 raw = pd.read_csv('https://raw.githubusercontent.com/douglasbogan/IDC6940_XGBoost_Douglas_Susanna/refs/heads/main/train.csv', na_filter=False)
@@ -325,6 +329,7 @@ for col in categorical_columns:
 library(DT)
 #| message: false
 #| warning: false
+
 Cat = read.csv("Categorical_Description.csv")
 datatable(Cat, options = list(pageLength = 5), rownames = FALSE, filter = 'top')
 ```
@@ -339,6 +344,7 @@ Categorical Variables in the Dataset
 library(DT)
 #| message: false
 #| warning: false
+
 Numb = read.csv("Numerical_Description.csv")
 datatable(Numb, options = list(pageLength = 10), rownames = FALSE, filter = 'top')
 ```
@@ -361,13 +367,14 @@ found in @tbl-NA below.
 #| message: false
 #| warning: false
 #| output: false
+
 # find erroneous NA values
 non_categorical = raw[['LotFrontage', 'MasVnrArea', 'GarageYrBlt']]
 
 for col in non_categorical:
-    print(f"Count of NA in '{col}': {raw[col].value_counts().get('NA', 0)}")
+    print(f"Count of NA in '{col}': {raw[col].value_counts().get("NA", 0)}")
 
-print(f"Count of NA in 'Electrical': {raw['Electrical'].value_counts().get('NA', 0)}")
+print(f"Count of NA in 'Electrical': {raw['Electrical'].value_counts().get("NA", 0)}")
 ```
 
 |             |                  |                           |
@@ -392,6 +399,7 @@ correlations amongst the variables should also be examined.
 #| message: false
 #| warning: false
 #| output: false
+
 # distribution of target variable
 raw['SalePrice'].plot(kind = 'hist', bins = 30, color = 'steelblue', edgecolor = 'black', title = "Sale Price")
 plt.show()
@@ -401,13 +409,14 @@ plt.show()
 (\$)](FinalFigures/target-1.png){#fig-target fig-align="center"}
 
 In @fig-target above, the target variable SalePrice appears
-right-skewed, and may benefit from log transformation. The results of
+right-skewed, and may benefit from log transformation. The result of
 this suggestion is compared in @fig-log below.
 
 ```{python log, fig.path="FinalFigures/", fig.format='png'}
 #| message: false
 #| warning: false
 #| output: false
+
 # testing log target variable
 SalePrice_log = np.log(raw['SalePrice']).rename('SalePrice_log')
 
@@ -437,6 +446,7 @@ transformation of SalePrice are included in the correlation matrix in
 #| message: false
 #| warning: false
 #| output: false
+
 # specify the numerical columns
 numerical_columns = raw[['LotArea', 'OverallQual', 'OverallCond', 'YearBuilt', 'YearRemodAdd', 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', '1stFlrSF', '2ndFlrSF', 'LowQualFinSF', 'GrLivArea', 'BsmtFullBath', 'BsmtHalfBath', 'FullBath', 'HalfBath', 'BedroomAbvGr', 'KitchenAbvGr', 'TotRmsAbvGrd', 'Fireplaces', 'GarageCars', 'GarageArea', 'WoodDeckSF', 'OpenPorchSF', 'EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea', 'MiscVal', 'MoSold', 'YrSold', 'SalePrice']]
 
@@ -461,13 +471,364 @@ plt.show()
 variables](FinalFigures/correlation-3.png){#fig-correlation
 fig-align="center"}
 
-In the correlation matrix, values over 0.85 are annotated for easy
-identification. This only incorporates the correlation between
+In the correlation matrix, values greater than 0.85 are annotated for
+ease of identification. This only incorporates the correlation between
 GarageArea and GarageCars, meaning they have similar information that
 could reduce the accuracy of the model. As a result, one of the columns
 could be dropped to reduce multicollinearity.
 
 ### Modeling and Results
+
+Before deployment, the XGBoost model will be trained to establish a
+baseline for the evaluation metrics: coefficient of determination (R²)
+and Root Mean Squared Error (RMSE). These evaluation metrics were chosen
+to reflect our goal of developing a model that can accurately predict
+sales price and answer our research question: *How well can a machine
+learning model like XGBoost predict sale prices using a
+transaction-level dataset from a metropolitan market, and which features
+most influence those predictions?* While R² reflects how well the model
+fits the data, RSME shows how accurately the model predicts the target
+variable. [@fig-analysis] below provides an overview of the process
+performed in this study.
+
+![Overview of process for study](Modeling.png){#fig-analysis
+fig-align="center"}
+
+#### Preprocessing
+
+As discovered in the data exploration and visualization section, the
+dataset contains several categorical features, many of which use “NA” as
+a meaningful category rather than to represent missing data. To handle
+this dataset, the steps shown in @tbl-NA above were implemented to fill
+in or remove missing data. Additionally, the data types originally
+stored as an incorrect type, as identified in @tbl-variables and
+@tbl-variables2 were converted to their proper data type.  
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# handle missing data & convert data types
+data = raw.copy()
+data[['LotFrontage', 'MasVnrArea']] = data[['LotFrontage', 'MasVnrArea']].apply(pd.to_numeric, errors = 'coerce').fillna(0).astype(int)
+data['GarageYrBlt'] = data['GarageYrBlt'].apply(pd.to_numeric, errors='coerce').fillna(raw['YearBuilt']).astype(int)
+data = data[~data['Electrical'].str.contains("NA")]
+data['MSSubClass'] = data['MSSubClass'].astype('object')
+
+# double check
+print(f"Count of NA in 'LotFrontage', 'MasVnrArea', 'GarageYrBlt': {data[['LotFrontage', 'MasVnrArea', 'GarageYrBlt']].value_counts().get("NA", 0)}")
+print(f"Count of NA in 'Electrical': {data['Electrical'].value_counts().get("NA", 0)}")
+print(data[['LotFrontage','MasVnrArea','GarageYrBlt','MSSubClass']].dtypes)
+```
+
+Feature engineering was then conducted to remove high correlation
+feature GarageArea, as identified in the correlation matrix in
+@fig-correlation.
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# feature engineering - drop high correlation column
+data = data.drop(columns = ['GarageArea'])
+```
+
+Since the target variable continued to exhibit skewness seen in @fig-log
+in the above section, a log transformation was applied to improve model
+fit. This was the final preprocessing step conducted as determined in
+the data exploration.
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# log transform target variable
+data_log_y = np.log(data['SalePrice']).rename('SalePrice_log')
+
+# replace target variable with log version
+data_log = pd.concat([data, data_log_y], axis = 1)
+data_log = data_log.drop(columns = ['SalePrice'])
+```
+
+Next, the data was split into training and testing sets at an 80%/20%
+ratio to ensure sufficient data for both model training and evaluating
+the prediction accuracy.
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# split 80/20 to create train and test
+X, y = data_log.iloc[:, 1:79], data_log.SalePrice_log
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 1)
+
+# checking results
+print("X_train:", X_train.shape)
+print("X_test:", X_test.shape)
+print("y_train:", y_train.shape)
+```
+
+Finally, categorical variables were encoded using One Hot Encoding,
+which avoids incorrectly imposing an ordinal relationship in the data.
+XGBoost, being a tree-based model, is not reliant on or heavily impacted
+by numerical values and the differences between them. As a result,
+feature scaling was not performed.
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# one hot encoding
+# categorical columns
+categorical = X_train.select_dtypes(include = 'object').columns
+
+# numerical columns
+numerical = X_train.select_dtypes(exclude = 'object').columns
+
+# define encoder
+OneHot = OneHotEncoder(handle_unknown = "ignore", sparse_output = False)
+
+# fit on train
+OneHot.fit(X_train[categorical]);
+
+# transform train and test
+Xtrain_cat = OneHot.transform(X_train[categorical])
+Xtest_cat  = OneHot.transform(X_test[categorical])
+
+# convert back to df
+col_names = OneHot.get_feature_names_out(categorical)
+Xtrain_cat = pd.DataFrame(Xtrain_cat, columns = col_names, index = X_train.index)
+Xtest_cat  = pd.DataFrame(Xtest_cat,  columns = col_names, index = X_test.index)
+
+# recombine w/numeric columns
+Xtrain_encoded = pd.concat([X_train[numerical], Xtrain_cat], axis = 1)
+Xtest_encoded  = pd.concat([X_test[numerical],  Xtest_cat], axis = 1)
+
+# checking results
+print("X_train:", X_train.shape)
+print("X_test:", X_test.shape)
+print("y_train:", y_train.shape)
+```
+
+#### Model Training
+
+XGBoost was selected as the sole model for this dataset due to its
+strong performance with categorical data, efficiency, and resistance to
+overfitting. To establish a baseline for evaluation, the model was first
+trained with default hyperparameters. The baseline results for RMSE and
+R² can be found in @tbl-baseline below.
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# model - xgboost
+model = xgb.XGBRegressor(random_state = 1)
+model.fit(Xtrain_encoded, y_train);
+pred = model.predict(Xtest_encoded)
+```
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# evaluate default as baseline
+# RMSE
+RMSE = np.sqrt(mean_squared_error(y_test, pred))
+
+# R2
+R2 = r2_score(y_test, pred)
+
+print(f"RMSE: {RMSE:.4f}")
+print(f"R²: {R2:.4f}")
+```
+
+| Metric | Value  |
+|:------:|:------:|
+|  RMSE  | 0.1264 |
+|   R²   | 0.9029 |
+
+: XGBoost baseline evaluation results {#tbl-baseline}
+
+These results indicate that the model already explains 90% of the
+variance for the target variable. Additionally, the lower value in RMSE
+indicates the model's strength in predicting sales price.
+
+#### Hyperparameter Tuning
+
+Although currently performing adequately, hyperparameter tuning could
+improve both metrics. GridSearchCV was used to evaluate several
+parameters that can be further examined in the code block below.
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# tracking time of code block execution
+start_time = time.monotonic()
+
+# hyperparameter tuning - GridSearch
+# takes ~ 45-60 mins
+param_grid = {
+    "n_estimators": [300, 500, 800],
+    "learning_rate": [0.01, 0.05, 0.1],
+    "max_depth": [4, 6, 8],
+    "subsample": [0.7, 0.8, 1.0],
+    "colsample_bytree": [0.7, 0.8, 1.0],
+}
+
+xgb_model = xgb.XGBRegressor(objective = "reg:squarederror", random_state = 1)
+
+grid = GridSearchCV(
+    estimator = xgb_model,
+    param_grid = param_grid,
+    scoring = "neg_root_mean_squared_error",
+    cv = 5,
+    verbose = 1,
+    n_jobs = 1
+)
+
+grid.fit(Xtrain_encoded, y_train);
+
+# outputs time code block took
+end_time = time.monotonic()
+print(timedelta(seconds = end_time - start_time))
+```
+
+After 30 to 60 minutes, the following best parameters were identified:
+
+-   colsample_bytree: 0.7
+-   learning_rate: 0.05
+-   max_depth: 4
+-   n_estimators: 800
+-   subsample: 0.7
+
+Although some adjustments and re-evaluations were conducted to ensure an
+efficient GridSearch was performed, once the best parameters were
+identified, they were applied to the final model.
+
+#### Deployment & Evaluation
+
+After forming the tuned model, RSME and R² were re-evaluated against the
+baseline model. The tuned evaluation metrics can be found in @tbl-tuned
+below.
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+
+# evaluate tuned
+pred_tuned = grid.best_estimator_.predict(Xtest_encoded)
+
+RMSE_tuned = np.sqrt(mean_squared_error(y_test, pred_tuned))
+R2_tuned = r2_score(y_test, pred_tuned)
+
+print("Best parameters:", grid.best_params_)
+print(f"Tuned RMSE: {RMSE_tuned:.4f}")
+print(f"Tuned R²: {R2_tuned:.4f}")
+```
+
+|            |              |           |
+|:----------:|:------------:|:---------:|
+| **Metric** | **Baseline** | **Tuned** |
+|    RSME    |    0.1264    |  0.1208   |
+|    R\^2    |    0.9029    |  0.9113   |
+
+: Comparison of baseline and tuned evaluation metrics {#tbl-tuned}
+
+Both RMSE and R² showed that the tuned model improved in both fit and
+prediction accuracy.
+
+To determine which feature had the greatest impact on the target
+variable, sales price, feature importance was visualized in
+@fig-important below.
+
+```{python important, fig.path="FinalFigures/", fig.format='png'}
+#| message: false
+#| warning: false
+#| output: false
+
+# feature importance
+xgb.plot_importance(grid.best_estimator_, grid = False,
+                    title = "20 Most Important Features",
+                    ylabel = "Feature Name", xlabel = "Score",
+                    max_num_features = 20, values_format = '{v:.0f}')
+plt.show()
+```
+
+![20 most influential features on
+SalePrice](FinalFigures/important-4.png){#fig-important
+fig-align="center"}
+
+The top three most influential factors include LotArea, LotFrontage, and
+GrLivArea, which highlight the importance that the lot size and living
+area have on the sale price of a home in Ames, Iowa.
+
+To further evaluate model performance, actual sales prices were compared
+to the predicted values after converting the log-transformed predictions
+back to the original unit, U.S. Dollars (\$). An interactive
+visualization can be found in the interactive graph below.
+
+```{python plotly}
+#| message: false
+#| warning: false
+#| output: false
+
+# plotly interactive predicted vs actual
+df_pred = pd.DataFrame({
+    'Actual_log': y_test,
+    'Predicted_log': pred_tuned
+})
+
+df_pred['Actual'] = np.exp(df_pred['Actual_log'])
+df_pred['Predicted'] = np.exp(df_pred['Predicted_log'])
+
+df_long = pd.DataFrame({
+    'Value': pd.concat([df_pred['Actual'], df_pred['Predicted']], ignore_index = True),
+    'Type': (['Actual'] * len(df_pred)) + (['Predicted'] * len(df_pred)),
+    'Index': list(range(len(df_pred))) * 2,
+    'Actual': list(df_pred['Actual']) * 2,
+    'Predicted': list(df_pred['Predicted']) * 2
+})
+
+color_map = {'Predicted': 'RoyalBlue', 'Actual': 'PaleGreen'}
+fig = px.scatter(df_long, x = 'Index', y = 'Value',
+                 color = 'Type', color_discrete_map = color_map,
+                 title = "Actual vs Predicted Value of Target Variable (Dollars)",
+                 opacity = .8, custom_data = ['Actual', 'Predicted'])
+
+for trace in fig.data:
+    if trace.name == "Predicted":
+        trace.hovertemplate = (
+            "Row Index: %{x}<br>"
+            "Actual: $%{customdata[0]:,.2f}<br>"
+            "Predicted: $%{customdata[1]:,.2f}<br>"
+        )
+    else:
+        trace.hovertemplate = None
+        trace.hoverinfo = "skip"
+
+fig.update_layout(template = 'plotly_white',
+                  xaxis_title = "Data Row Index", yaxis_title = "Sale Price (Dollars)"),
+fig.show()
+```
+
+Interactive graph showing predicted vs actual sales price
+
+The model performs consistently across most of the price range. It can
+be observed, however, that as the sales prices approach the upper end of
+the distribution, the difference between the predicted and actual values
+increases. This could be due to the more complex pricing of higher-end
+homes.
 
 ### Conclusion
 
