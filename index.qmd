@@ -27,120 +27,101 @@ Slides: [Presentation slides](slides.html){target="_blank"}
 
 The ability to predict residential sale prices is a million-dollar
 question in real estate. Accurate valuations affect buyers, sellers,
-lenders, appraisers, and local governments. A reliable model can help
-set listing prices, underwrite mortgages, estimate tax assessments,
-assist insurance providers, guide investment decisions, and help local
-governments in decision-making. Therefore, more accurate price
-predictions reduce the chances of overpaying or underpricing a home and
-make valuation models and appraisals more useful for companies and
-individuals who directly buy, sell, and/or finance properties.
+lenders, appraisers, and local governments. A reliable predictive model
+can help set listing prices, underwrite mortgages, estimate tax
+assessments, assist insurance providers, guide investment decisions, and
+help local governments in decision-making. Therefore, more accurate
+price predictions reduce the chances of overpaying or underpricing a
+home and make valuation models and appraisals more useful for companies
+and individuals who directly buy, sell, and/or finance properties.
 
-#### The Problem
+#### The Business Question
 
-The question this capstone project intends to address is: *How well can
-a machine learning model like XGBoost predict sale prices using a
-transaction-level dataset from a metropolitan market, and which features
-most influence those predictions?* This project intends to achieve a
-model outcome that emphasizes price prediction accuracy (how close
-predicted prices are to actual sale prices), robustness within the
-market (how well the model generalizes within the same metro area), and
-practical value (how the model can support those involved in a real
-estate transaction).
+The business question this capstone project intends to address is: *How
+well can a machine learning model like XGBoost predict real estate sale
+prices using a transaction-level dataset from a metropolitan market, and
+which features most influence those predictions?* This project intends
+to achieve a model outcome that emphasizes price prediction accuracy
+(how close predicted prices are to actual sale prices), robustness
+within the market (how well the model generalizes within the same metro
+area), and practical value (how the model can support those involved in
+a real estate transaction).
 
-#### Why a Single Market Study
+#### Overivew of Approach
 
-Using one market area is a deliberate choice. A single market dataset
-allows us to dig into similar local features. This includes such
-features as local economics, neighborhood clusters, micro-market cycles,
-and amenities, without averaging away those various features. Several
-reviewed studies show that model performance and the value of specific
-features depend heavily on local context (see “An optimal house price
-prediction algorithm: XGBoost” [@sharma2024optimal] and “House price
-prediction using hedonic pricing model and machine learning techniques”
-[@zaki2022house]). By focusing on one market, this project trades broad
-generalization for depth. The goal is a careful and well-documented
-application of XGBoost that produces a reliable valuation model for that
-market, along with lessons in feature design and parameter tuning that
-others can adapt.
-
-#### Overview of Approach
-
-This project will take a single comprehensive transaction dataset for a
-metropolitan area, perform standard cleaning and feature engineering,
-and train XGBoost with a practical tuning workflow that balances speed
-and thoroughness. If needed while tuning, certain recommendations from
-our research literature will be considered, including the two-stage plan
-of screening promising hyperparameter settings on small representative
-subsamples, and then refining on the full dataset. This will hopefully
-ensure the model performs well and is computationally practical (see “A
-simple and fast baseline for tuning large XGBoost models”
-[@kapoor2021simple] and “Exploring Key XGBoost Hyperparameters”
-[@verma2024exploring]). The final deliverable will be a clear report of
-predictive performance, a discussion of the most influential features,
-and practical notes for deploying the XGBoost model in a chosen market.
+The real estate transaction data for this project will come from a
+single market area, which is a deliberate choice. A single market
+dataset allows us to dig into similar local features. This includes such
+features as Lot Area, Lot Frontage, Year Built, Month Sold, and Overall
+Condition. Several reviewed studies show that model performance and the
+value of specific features depend heavily on local context
+[@sharma2024optimal] and [@zaki2022house]. By focusing on one market,
+this project is able to delve deeper into specific features of
+properties in a particular geographic area, rather than have those
+unique features lose meaning due to the generalization that occurs when
+evaluating multiple markets. The goal is a careful and well-documented
+application of a machine learning model like XGBoost that produces a
+reliable predictive model for that market, along with lessons in data
+selection, preprocessing, model training, and hyperparameter tuning that
+others can adapt. This project will take a single comprehensive
+transaction dataset for a metropolitan area, perform standard
+preprocessing, traing the XGBoost model, and then implement
+hyperparameter tuning with a pratical tuning workflow that balances
+speed and thoroughness wherever possible. The final deliverable will
+include a clear analysis of predictive performance, a discussion of the
+most influential features, and practical notes for deploying the XGBoost
+model in a chosen market.
 
 ### Literature Review
 
 #### XGBoost: System Design, Strengths, and Tuning Practices
 
-“XGBoost: A Scalable Tree Boosting System” [@chen2016xgboost] lays out
-why XGBoost is a practical choice for tabular data. XGBoost is
-engineered for speed, handles sparse inputs, is scalable, and includes
-regularization that helps control overfitting. Those system-level
-features matter in real estate data because transaction tables often
-include many categorical features and sparse data. Experimental and
-comparative work reinforces the point that XGBoost is powerful, but
-tuning matters. “A Comparative Analysis of XGBoost”
-[@bentejac2019comparative] shows XGBoost ranks highly when
-hyperparameters are optimized, but can perform poorly with default
-values. This fact encourages a careful, reproducible tuning plan.
-Practical methods to speed up the tuning process are well documented. “A
-simple and fast baseline for tuning large XGBoost models”
-[@kapoor2021simple] demonstrates that tuning on small, uniformly sampled
-slices often preserves the ranking of hyperparameter configurations and
-dramatically speeds up search time. This is an attractive strategy when
-full training is slow. “Exploring Key XGBoost Hyperparameters”
+Research indicates that XGBoost is a practical choice for tabular data
+[@chen2016xgboost]. XGBoost is engineered for speed, handles sparse
+inputs, is scalable, and includes regularization that helps control
+overfitting. Those model features matter when dealing with real estate
+data because transaction tables often include many categorical features
+and sparse data. Previous research reinforces the point that XGBoost is
+powerful, but tuning matters. [@bentejac2019comparative] shows XGBoost
+ranks highly when hyperparameters are optimized, but can perform poorly
+without additional tuning. This fact encourages a careful, reproducible
+tuning plan. Practical methods to speed up the tuning process are well
+documented. [@kapoor2021simple] demonstrates that tuning on small,
+uniformly sampled slices often preserves the ranking of hyperparameter
+configurations and dramatically speeds up processing time. This is an
+attractive strategy when training on the full dataset is slow.
 [@verma2024exploring] provides sensible starting ranges for influential
 parameters, so tuning is less guesswork. Experimental surveys such as
-“Experimenting XGBoost algorithm for prediction and classification of
-different datasets” [@ramraj2016experimenting] highlight XGBoost’s speed
-advantage and the usefulness of feature importance outputs for
-interpretation. Finally, “Research and application of XGBoost in
-imbalanced data” [@zhang2022research] reminds practitioners to treat
+that demonstrated in [@ramraj2016experimenting] highlight XGBoost’s
+speed advantage and the usefulness of feature importance outputs for
+interpretation. Finally, [@zhang2022research] gives a reminder to treat
 distributional issues carefully, a lesson that translates to regression
 tasks with rare property types or extreme sale prices.
 
 #### Evidence from Housing Applications: Predictive Gains and Feature Importance
 
 Applied real estate housing studies consistently report that XGBoost
-improves predictive accuracy over linear hedonic models when inputs are
-rich and preprocessing is carefully conducted. “An optimal house price
-prediction algorithm: XGBoost” [@sharma2024optimal] used a real estate
-transaction dataset and found that XGBoost outperformed linear
-regression, multilayer perceptron, random forest, and SVR across R²,
-RMSE, and cross-validation metrics. The authors emphasize hyperparameter
-tuning and feature selection. When using smaller Kaggle datasets and
-municipal study datasets, others reached similar conclusions after
-standard cleaning and encoding, as seen in “Prediction of house price
-using xgboost regression algorithm” [@avanijaa2021prediction] and “House
-price prediction using hedonic pricing model and machine learning
-techniques” [@zaki2022house]. Several research papers show the value of
-expanding the input set beyond basic Multiple Listing Service (MLS)
-fields. “Deep learning with XGBoost for real estate appraisal”
-[@zhao2019deep] integrates image-based aesthetic scores from
-convolutional neural networks with structured attributes and then uses
-XGBoost in a stacked model. This added visual quality signals and
-improved prediction versus tabular-only baselines. “Understanding the
-effects of influential factors on housing prices by combining extreme
-gradient boosting and a hedonic price model (XGBoost HPM)”
-[@li2021understanding] uses XGBoost to rank predictors drawn from
-building records, POIs, night lights, and street images. This showed
-that diverse contextual features often surface as top drivers in
-predicting price. Another research paper, “Comparative analysis of
-advanced models for predicting housing prices: a review”
-[@moreno2025comparative], recommends pairing tree-based ensembles like
-XGBoost with careful feature design and regional variables to maximize
-predictive gains.
+improves predictive accuracy over linear hedonic models when there are
+many high-quality features, and preprocessing is carefully conducted.
+[@sharma2024optimal] used a real estate transaction dataset and found
+that XGBoost outperformed linear regression, multilayer perceptron,
+random forest, and SVR across R², RMSE, and cross-validation metrics.
+The authors emphasize hyperparameter tuning and feature selection. When
+using smaller Kaggle datasets and municipal study datasets, others
+reached similar conclusions after standard procerocessing and model
+training, as seen in [@avanijaa2021prediction] and [@zaki2022house].
+Further, several research papers show the value of expanding the feature
+set beyond basic Multiple Listing Service (MLS) fields. [@zhao2019deep]
+integrates image-based aesthetic scores from convolutional neural
+networks with structured attributes and then uses XGBoost in a stacked
+model. This added visual quality data showed improved prediction versus
+tabular-only traditional data. [@li2021understanding] uses XGBoost to
+rank predictors drawn from building records, POIs, night lights, and
+street images. This showed that diverse contextual features are often
+revealed to be the most important factors in predicting price. Another
+research paper, [@moreno2025comparative], recommends pairing tree-based
+ensembles like XGBoost with careful feature design and regional
+variables to maximize the accuracy of predictions.
 
 #### Feature Engineering, Data Scope, and Validation Choices for a Single Market
 
@@ -149,92 +130,89 @@ important as model choice. Research papers repeatedly call out market
 cycles, transit, neighborhood amenity counts, property condition, and
 curb appeal as high-value predictors, as seen in [@li2021understanding]
 and [@moreno2025comparative]. Other research papers, such as
-[@sharma2024optimal] and [@avanijaa2021prediction], document practical
+[@sharma2024optimal] and [@avanijaa2021prediction], document
 preprocessing to include missing value handling, outlier removal, and
-categorical encoding that materially affect performance. Research by
+categorical encoding that affect performance. Research by
 [@zhao2019deep] shows image-derived features can capture latent quality
-indicators not present in MLS fields. Focusing on one large market has
-tradeoffs but also clear advantages. Several studies warn that
-single-city datasets limit generalization [@sharma2024optimal],
+indicators not present in MLS fields. Moreover, focusing on one large
+market has tradeoffs but also clear advantages. Several studies warn
+that single-city datasets limit generalization [@sharma2024optimal],
 [@zaki2022house]. However, that same local focus enables richer modeling
 of micro-markets and neighborhood clusters, which are insights that are
 directly useful to local appraisers, assessors, and lenders. Practical
-tuning guidance as shown in [@kapoor2021simple] and
-[@verma2024exploring], along with caution about sampling assumptions in
-[@kapoor2021simple] and [@zhang2022research], motivate using stratified
-or time-aware subsampling rather than naive uniform draws, so rare
-property types and localized regimes are not missed.
+tuning guidance is emphasized in [@kapoor2021simple] and
+[@verma2024exploring]. Caution about sampling assumptions in
+[@kapoor2021simple] and [@zhang2022research] show the importance of
+using stratified or time-aware subsampling rather than simple uniform
+data selection, so rare property types and localized areas are not
+missed.
 
 #### Interpretability, Fairness, and Practical Deployment Considerations
 
-Even when the project’s primary goal is prediction, stakeholders care
-about why the model makes certain estimates. Several research papers
-recommend surfacing feature rankings and checking for distributional
+Even though the project’s primary goal is prediction, stakeholders care
+about why a model makes certain estimates. Several research papers
+recommend highlighting feature rankings and checking for distributional
 bias. Research papers by [@ramraj2016experimenting] and
 [@sharma2024optimal] highlight the practical value of feature importance
 outputs. Additional research work by [@li2021understanding] and
 [@zhao2019deep] show how contextual features such as green view, transit
-proximity, and local economic indicators can be surfaced for planners
+proximity, and local economic indicators can be highlighted for planners
 and lenders. The research paper by [@zhang2022research] emphasizes
 fairness checks and handling imbalanced or rare cases, which is
 important when a model will be used in lending or tax assessment.
 
 ## Methods
 
-#### Study Design and Model Selection
+#### Study Design: Model and Data Selection
 
 This project will be conducted as a supervised regression study aimed at
 predicting residential sale prices from structured transaction‑level
 data. The focus will be on developing a model that achieves strong
 predictive accuracy while remaining robust within a single market
-context and interpretable enough to support real estate decision‑making.
-This is why the predictive model chosen will be Extreme Gradient
-Boosting (XGBoost), implemented as a gradient‑boosted decision tree
-ensemble for regression. This method is well-suited for structured,
-tabular datasets [@sharma2024optimal]; [@zaki2022house]. XGBoost was
-selected due to its strong observed performance on structured datasets,
-efficient handling of sparse inputs, and built‑in mechanisms that help
-mitigate overfitting [@chen2016xgboost]. These characteristics make it
+context. The model will also need to be interpretable to support real
+estate decision‑making. This is why the predictive model chosen will be
+Extreme Gradient Boosting (XGBoost), implemented as a gradient‑boosted
+decision tree ensemble for regression. This method is well-suited for
+structured, tabular datasets [@sharma2024optimal]; [@zaki2022house].
+XGBoost was selected for its strong performance on structured datasets,
+efficient handling of sparse inputs, and built‑in mechanisms to mitigate
+overfitting [@chen2016xgboost]. These characteristics make it
 particularly suitable for modeling housing prices, where relationships
-between predictors and outcomes are often nonlinear and context
-dependent. The model will be trained using a squared‑error objective
-function, which is appropriate for continuous price prediction and
-consistent with prior housing price studies using boosted tree
-ensembles.
+between predictors and outcomes are often nonlinear and depend on
+context.
 
-#### Data Preparation
+#### Preprocessing
 
-Data preprocessing will address missing values commonly found in real
-estate transaction records. Numerical features with missing values will
-be imputed using the median to reduce sensitivity to outliers.
-Categorical features with missing values will be filled with an explicit
-"None" category to preserve information about structural absence (e.g.,
-no garage or fireplace), rather than discarding observations or
-converting them into nulls.
+Data preprocessing will address missing values and "NA" values commonly
+found in real estate transaction records. Proper steps will be taken to
+ensure these values are handled differently dpending on whether they
+indicate missing cvalues or are a meaningful category. Futhermore, data
+stored as an incorrect tpye will be converted for proper model training.
+Feasture engineering will be conducted to remove any highly correlated
+features identified. The target variable will be examined for skewness,
+and if necessary, a log transformation will be applied to enhance model
+fit. All categorical vairables will be converted into a numerical format
+using one‑hot encoding. This approach avoids imposing an ordinal
+structure on nominal variables and is compatible with tree‑based
+ensemble models such as XGBoost. One‑hot encoding is widely used in
+housing price prediction studies and also supports efficient modeling of
+sparse features [@avanijaa2021prediction].
 
-All categorical variables will be converted into numerical format using
-one‑hot encoding. This approach avoids imposing ordinal structure on
-nominal attributes and is compatible with tree‑based ensemble models
-such as XGBoost. One‑hot encoding is widely used in applied housing
-price prediction studies and supports efficient modeling of sparse
-feature spaces [@avanijaa2021prediction].
+#### Model Training
 
-#### Training, Validation, and Evaluation
-
-The dataset will be divided into training and validation subsets using a
-fixed random split. The training subset will be used to fit model
-parameters, while the validation subset will be reserved for evaluating
-performance during model development. Model performance will be
-evaluated using the coefficient of determination (R²) and Root Mean
-Squared Error (RMSE). These metrics are standard in the housing price
-prediction literature and allow comparison with prior studies evaluating
-XGBoost and related models [@bentejac2019comparative];
-[@sharma2024optimal].
+The dataset will be divided into training and testing sets using an
+80%/20% split. The training subset will be used to fit model parameters,
+while the testing subset will be reserved for evaluating performance
+during model development. Model performance will be evaluated using the
+coefficient of determination (R²) and Root Mean Squared Error (RMSE).
+These metrics are standard in the housing price prediction literature
+and allow comparison with prior studies evaluating XGBoost and related
+models [@bentejac2019comparative]; [@sharma2024optimal].
 
 #### Hyperparameter Tuning
 
 Because prior research demonstrates that XGBoost performance is
-sensitive to hyperparameter choices, the modeling process will include a
+sensitive to hyperparameter tuning, the modeling process will include a
 hyperparameter tuning stage rather than relying on default settings.
 Hyperparameter tuning will be performed using cross‑validated grid
 search. The search will focus on key parameters that control ensemble
@@ -242,16 +220,16 @@ complexity and learning behavior, including the number of boosting
 iterations, maximum tree depth, and learning rate. This tuning strategy
 follows guidance from the research literature, which emphasizes
 prioritizing high‑impact parameters to improve model performance while
-maintaining computational efficiency [@kapoor2021simple].
+maintaining processing efficiency where possible [@kapoor2021simple].
 
-#### Interpretability
+#### Deployment and Evaluation
 
 Although predictive accuracy will be the primary objective, model
 interpretability will also be prioritized. Feature importance measures
 produced by the trained XGBoost model will be used to identify the most
-influential predictors of housing prices. These rankings will support
-interpretation and comparison with findings in the research papers,
-consistent with prior XGBoost studies [@ramraj2016experimenting].
+influential predictors of housing prices. The ranking of the most
+important features will support both evaluation and comparison with
+findings in the research papers [@ramraj2016experimenting].
 
 ## Analysis and Results
 
@@ -289,7 +267,7 @@ data have been removed from the table below.
 
 # run these two comments below in the console
 #library(reticulate) # library to run python
-#py_install(c("numpy", "matplotlib", "seaborn", "xgboost", "scikit-learn", "plotly", "psutil"))
+#py_install(c("pandas", "numpy", "matplotlib", "seaborn", "xgboost", "scikit-learn", "plotly", "psutil"))
 ```
 
 ```{python}
@@ -484,10 +462,10 @@ baseline for the evaluation metrics: coefficient of determination (R²)
 and Root Mean Squared Error (RMSE). These evaluation metrics were chosen
 to reflect our goal of developing a model that can accurately predict
 sales price and answer our research question: *How well can a machine
-learning model like XGBoost predict sale prices using a
+learning model like XGBoost predict real estate sale prices using a
 transaction-level dataset from a metropolitan market, and which features
 most influence those predictions?* While R² reflects how well the model
-fits the data, RSME shows how accurately the model predicts the target
+fits the data, RMSE shows how accurately the model predicts the target
 variable. [@fig-analysis] below provides an overview of the process
 performed in this study.
 
@@ -522,7 +500,7 @@ print(f"Count of NA in 'Electrical': {data['Electrical'].value_counts().get("NA"
 print(data[['LotFrontage','MasVnrArea','GarageYrBlt','MSSubClass']].dtypes)
 ```
 
-Feature engineering was then conducted to remove high correlation
+Feature engineering was then conducted to remove highly correlated
 feature GarageArea, as identified in the correlation matrix in
 @fig-correlation.
 
@@ -572,7 +550,7 @@ print("X_test:", X_test.shape)
 print("y_train:", y_train.shape)
 ```
 
-Finally, categorical variables were encoded using One Hot Encoding,
+Finally, categorical variables were encoded using one-hot encoding,
 which avoids incorrectly imposing an ordinal relationship in the data.
 XGBoost, being a tree-based model, is not reliant on or heavily impacted
 by numerical values and the differences between them. As a result,
@@ -717,7 +695,7 @@ identified, they were applied to the final model.
 
 #### Deployment & Evaluation
 
-After forming the tuned model, RSME and R² were re-evaluated against the
+After forming the tuned model, RMSE and R² were re-evaluated against the
 baseline model. The tuned evaluation metrics can be found in @tbl-tuned
 below.
 
@@ -740,7 +718,7 @@ print(f"Tuned R²: {R2_tuned:.4f}")
 |            |              |           |
 |:----------:|:------------:|:---------:|
 | **Metric** | **Baseline** | **Tuned** |
-|    RSME    |    0.1264    |  0.1208   |
+|    RMSE    |    0.1264    |  0.1208   |
 |    R\^2    |    0.9029    |  0.9113   |
 
 : Comparison of baseline and tuned evaluation metrics {#tbl-tuned}
