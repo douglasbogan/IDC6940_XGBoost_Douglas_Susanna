@@ -47,7 +47,7 @@ within the market (how well the model generalizes within the same metro
 area), and practical value (how the model can support those involved in
 a real estate transaction).
 
-#### Overivew of Approach
+#### Overview of Approach
 
 The real estate transaction data for this project will come from a
 single market area, which is a deliberate choice. A single market
@@ -65,8 +65,8 @@ reliable predictive model for that market, along with lessons in data
 selection, preprocessing, model training, and hyperparameter tuning that
 others can adapt. This project will take a single comprehensive
 transaction dataset for a metropolitan area, perform standard
-preprocessing, traing the XGBoost model, and then implement
-hyperparameter tuning with a pratical tuning workflow that balances
+preprocessing, training the XGBoost model, and then implement
+hyperparameter tuning with a practical tuning workflow that balances
 speed and thoroughness wherever possible. The final deliverable will
 include a clear analysis of predictive performance, a discussion of the
 most influential features, and practical notes for deploying the XGBoost
@@ -108,7 +108,7 @@ that XGBoost outperformed linear regression, multilayer perceptron,
 random forest, and SVR across R², RMSE, and cross-validation metrics.
 The authors emphasize hyperparameter tuning and feature selection. When
 using smaller Kaggle datasets and municipal study datasets, others
-reached similar conclusions after standard procerocessing and model
+reached similar conclusions after standard preprocessing and model
 training, as seen in [@avanijaa2021prediction] and [@zaki2022house].
 Further, several research papers show the value of expanding the feature
 set beyond basic Multiple Listing Service (MLS) fields. [@zhao2019deep]
@@ -185,13 +185,13 @@ context.
 
 Data preprocessing will address missing values and "NA" values commonly
 found in real estate transaction records. Proper steps will be taken to
-ensure these values are handled differently dpending on whether they
-indicate missing cvalues or are a meaningful category. Futhermore, data
-stored as an incorrect tpye will be converted for proper model training.
-Feasture engineering will be conducted to remove any highly correlated
+ensure these values are handled differently depending on whether they
+indicate missing values or are a meaningful category. Furthermore, data
+stored as an incorrect type will be converted for proper model training.
+Feature engineering will be conducted to remove any highly correlated
 features identified. The target variable will be examined for skewness,
 and if necessary, a log transformation will be applied to enhance model
-fit. All categorical vairables will be converted into a numerical format
+fit. All categorical variables will be converted into a numerical format
 using one‑hot encoding. This approach avoids imposing an ordinal
 structure on nominal variables and is compatible with tree‑based
 ensemble models such as XGBoost. One‑hot encoding is widely used in
@@ -236,8 +236,8 @@ findings in the research papers [@ramraj2016experimenting].
 ### Data Exploration and Visualization
 
 The dataset was sourced from the train.csv file of a Kaggle dataset
-[house-prices-advanced-regression-dataset](https://www.kaggle.com/datasets/hassanjameelahmed/house-prices-advanced-regression-dataset).The
-train.csv was chosen as the sole data source to prevent data leaking
+[house-prices-advanced-regression-dataset](https://www.kaggle.com/datasets/hassanjameelahmed/house-prices-advanced-regression-dataset).
+The train.csv was chosen as the sole data source to prevent data leaking
 from recombining with the test.csv data, which doesn’t contain the
 prediction value (sales price).
 
