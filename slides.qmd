@@ -1,35 +1,23 @@
 ---
-title: "Present a great story for data science projects"
-subtitle: "This is a Slide Template"
-author: "Students names (Advisor: Dr. Cohen)"
-date: '`r Sys.Date()`'
-format:
-  revealjs
+title: "Predicting Housing Prices with XGBoost Methodology"
+subtitle: "Capstone Projects for Data Science - Spring 2026"
+author: "Douglas Bogan and Susanna Brown (Advisor: Dr. Cohen)"
 course: Capstone Projects in Data Science
-bibliography: references.bib # file contains bibtex for references
-#always_allow_html: true # this allows to get PDF with HTML features
+date: '`r Sys.Date()`'
+engine: knitr
+format: 
+  revealjs:
+    smaller: true
+    scrollable: true
+    theme: sky
+bibliography: references.bib
 self-contained: true
 execute: 
   warning: false
   message: false
-editor: 
-  markdown: 
-    wrap: 72
 ---
 
-::: callout-important
-**Remember:** Your goal is to make your audience understand and care
-about your findings. By crafting a compelling story, you can effectively
-communicate the value of your data science project.
-
-Carefully read this template since it has instructions and tips to
-writing!
-
-More information about `revealjs`:
-<https://quarto.org/docs/reference/formats/presentations/revealjs.html>
-:::
-
-## Introduction  {.smaller}
+## Introduction
 
 -   Develop a storyline that captures attention and maintains interest.
 
@@ -41,17 +29,11 @@ More information about `revealjs`:
 
 -   Provide an overview of your approach.
 
-In kernel estimator, weight function is known as kernel function
-[@efr2008]. Cite this paper [@bro2014principal]. The GEE [@wang2014].
-The PCA [@daffertshofer2004pca]\*
-
 ## Methods
 
 -   Detail the models or algorithms used.
 
 -   Justify your choices based on the problem and data.
-
-
 
 ## Data Exploration and Visualization
 
@@ -60,39 +42,6 @@ The PCA [@daffertshofer2004pca]\*
 -   Present initial findings and insights through visualizations.
 
 -   Highlight unexpected patterns or anomalies.
-
-## Data Exploration and Visualization {.smaller}
-
-A study was conducted to determine how...
-
-```{r, warning=FALSE, echo=F, message=FALSE}
-# loading packages 
-library(tidyverse)
-library(knitr)
-library(ggthemes)
-library(ggrepel)
-library(dslabs)
-```
-
-```{r, warning=FALSE, echo=F}
-# Load Data
-#kable(head(murders))
-
-ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total)) 
-
-  ggplot1 + geom_point(aes(col=region), size = 4) +
-  geom_text_repel(aes(label=abb)) +
-  scale_x_log10() +
-  scale_y_log10() +
-  geom_smooth(formula = "y~x", method=lm,se = F)+
-  xlab("Populations in millions (log10 scale)") + 
-  ylab("Total number of murders (log10 scale)") +
-  ggtitle("US Gun Murders in 2010") +
-  scale_color_discrete(name = "Region")+
-      theme_bw()
-  
-
-```
 
 ## Modeling and Results
 
@@ -104,10 +53,6 @@ ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total))
 
 -   **Tell a story about what the data reveals.**
 
-```{r}
-
-```
-
 ## Conclusion
 
 -   Summarize your key findings.
@@ -115,3 +60,14 @@ ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total))
 -   Discuss the implications of your results.
 
 ## References
+
+```{=html}
+<style type="text/css">
+  #refs {
+    font-size: 5px;
+}
+</style>
+```
+
+::: {#refs}
+:::
