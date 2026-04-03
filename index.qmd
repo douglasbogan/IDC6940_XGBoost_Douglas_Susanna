@@ -204,7 +204,8 @@ The dataset will be divided into training and testing sets using an
 80%/20% split. The training subset will be used to fit model parameters,
 while the testing subset will be reserved for evaluating performance
 during model development. Model performance will be evaluated using the
-coefficient of determination (R²) and Root Mean Squared Error (RMSE).
+coefficient of determination (R²), Mean Absolute Error (MAE), Mean
+Absolute Percentage Error (MAPE), and Root Mean Squared Error (RMSE).
 These metrics are standard in the housing price prediction literature
 and allow comparison with prior studies evaluating XGBoost and related
 models [@bentejac2019comparative]; [@sharma2024optimal].
@@ -267,7 +268,7 @@ data have been removed from the table below.
 
 # run these two comments below in the console
 #library(reticulate) # library to run python
-#py_install(c("pandas", "numpy", "matplotlib", "seaborn", "xgboost", "scikit-learn", "plotly", "psutil"))
+#py_install(c("pandas", "numpy", "matplotlib", "seaborn", "xgboost", "scikit-learn", "plotly", "psutil", "statsmodels", "plotly", "joblib"))
 ```
 
 ```{python}
@@ -283,9 +284,12 @@ import seaborn as sns
 import xgboost as xgb
 import plotly.express as px
 import time
+import statsmodels.api as sm
+import plotly.io as pio 
+import joblib 
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from datetime import timedelta
 
 # load data
@@ -458,16 +462,18 @@ could be dropped to reduce multicollinearity.
 ### Modeling and Results
 
 Before deployment, the XGBoost model will be trained to establish a
-baseline for the evaluation metrics: coefficient of determination (R²)
-and Root Mean Squared Error (RMSE). These evaluation metrics were chosen
-to reflect our goal of developing a model that can accurately predict
-sales price and answer our research question: *How well can a machine
-learning model like XGBoost predict real estate sale prices using a
+baseline for the evaluation metrics: coefficient of determination (R²),
+Mean Absolute Error (MAE), Mean Absolute Percentage Error (MAPE), and
+Root Mean Squared Error (RMSE). These evaluation metrics were chosen to
+reflect our goal of developing a model that can accurately predict sales
+price and answer our research question: *How well can a machine learning
+model like XGBoost predict real estate sale prices using a
 transaction-level dataset from a metropolitan market, and which features
 most influence those predictions?* While R² reflects how well the model
-fits the data, RMSE shows how accurately the model predicts the target
-variable. [@fig-analysis] below provides an overview of the process
-performed in this study.
+fits the data, MAE calculates the average error in terms of the original
+scale, MAPE calculates the average error as a percentage, and RMSE shows
+how accurately the model predicts the target variable. [@fig-analysis]
+below provides an overview of the process performed in this study.
 
 ![Overview of process for study](Modeling.png){#fig-analysis
 fig-align="center"}
@@ -500,9 +506,11 @@ print(f"Count of NA in 'Electrical': {data['Electrical'].value_counts().get("NA"
 print(data[['LotFrontage','MasVnrArea','GarageYrBlt','MSSubClass']].dtypes)
 ```
 
-Feature engineering was then conducted to remove highly correlated
+Feature engineering was then conducted to remove the highly correlated
 feature GarageArea, as identified in the correlation matrix in
-@fig-correlation.
+@fig-correlation. GarageArea was chosen over GarageCars simply because
+it is more common to discuss garage size in terms of the number of
+vehicles that fit inside.
 
 ```{python}
 #| message: false
@@ -598,8 +606,8 @@ print("y_train:", y_train.shape)
 XGBoost was selected as the sole model for this dataset due to its
 strong performance with categorical data, efficiency, and resistance to
 overfitting. To establish a baseline for evaluation, the model was first
-trained with default hyperparameters. The baseline results for RMSE and
-R² can be found in @tbl-baseline below.
+trained with default hyperparameters. The baseline results for the
+evaluation metrics can be found in @tbl-baseline below.
 
 ```{python}
 #| message: false
@@ -618,26 +626,47 @@ pred = model.predict(Xtest_encoded)
 #| output: false
 
 # evaluate default as baseline
+
+# convert back to dollars
+y_test_dollar = np.expm1(y_test)
+pred_dollar = np.expm1(pred)
+
 # RMSE
-RMSE = np.sqrt(mean_squared_error(y_test, pred))
+RMSE_log = np.sqrt(mean_squared_error(y_test, pred))
+RMSE_dollar = np.sqrt(mean_squared_error(y_test_dollar, pred_dollar))
 
 # R2
-R2 = r2_score(y_test, pred)
+R2_log = r2_score(y_test, pred)
 
-print(f"RMSE: {RMSE:.4f}")
-print(f"R²: {R2:.4f}")
+# MAE
+MAE_dollar = mean_absolute_error(y_test_dollar, pred_dollar)
+
+# MAPE (manual, to avoid divide-by-zero issues)
+MAPE_dollar = np.mean(np.abs((y_test_dollar - pred_dollar) / y_test_dollar)) * 100
+
+print(f"RMSE (log): {RMSE_log:.4f}")
+print(f"RMSE ($): {RMSE_dollar:.2f} dollars")
+print(f"R² (log): {R2_log:.4f}")
+print(f"MAE ($): {MAE_dollar:.2f} dollars")
+print(f"MAPE % ($): {MAPE_dollar:.2f}%")
 ```
 
-| Metric | Value  |
-|:------:|:------:|
-|  RMSE  | 0.1264 |
-|   R²   | 0.9029 |
+|       Metric        |    Value    |
+|:-------------------:|:-----------:|
+|  RMSE (log scale)   |   0.1264    |
+| RMSE (dollar scale) | \$21,896.01 |
+|   R² (log scale)    |   0.9029    |
+| MAE (dollar scale)  | \$15,576.61 |
+| MAPE (dollar scale) |    9.46%    |
 
 : XGBoost baseline evaluation results {#tbl-baseline}
 
-These results indicate that the model already explains 90% of the
-variance for the target variable. Additionally, the lower value in RMSE
-indicates the model's strength in predicting sales price.
+The low value in RMSE indicates the model's strength in predicting sales
+price, having only an average discrepancy between actual and predicted
+values of \$21,986 for the larger errors. Te absolute error on an
+average home varies by about \$15,577, according to the MAE, with a
+9.46% error shown with MAPE. Additionally, these results indicate that
+the model already explains 90% of the variance for the target variable.
 
 #### Hyperparameter Tuning
 
@@ -649,6 +678,7 @@ parameters that can be further examined in the code block below.
 #| message: false
 #| warning: false
 #| output: false
+#| eval: false
 
 # tracking time of code block execution
 start_time = time.monotonic()
@@ -681,6 +711,29 @@ end_time = time.monotonic()
 print(timedelta(seconds = end_time - start_time))
 ```
 
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+#| eval: false
+
+# save results as file to avoid lengthly re-renders
+joblib.dump(grid, "XGB_GridSearch.pkl")
+print("Saved GridSearchCV to XGB_GridSearch.pkl")
+```
+
+```{python}
+#| message: false
+#| warning: false
+#| output: false
+#| eval: true
+
+# load file
+grid = joblib.load("XGB_GridSearch.pkl")
+
+print("Best parameters:", grid.best_params_)
+```
+
 After 30 to 60 minutes, the following best parameters were identified:
 
 -   colsample_bytree: 0.7
@@ -695,9 +748,9 @@ identified, they were applied to the final model.
 
 #### Deployment & Evaluation
 
-After forming the tuned model, RMSE and R² were re-evaluated against the
-baseline model. The tuned evaluation metrics can be found in @tbl-tuned
-below.
+After forming the tuned model, evaluation metrics were re-evaluated
+against the baseline model. The tuned evaluation metrics can be found in
+@tbl-tuned below.
 
 ```{python}
 #| message: false
@@ -705,26 +758,52 @@ below.
 #| output: false
 
 # evaluate tuned
-pred_tuned = grid.best_estimator_.predict(Xtest_encoded)
-
-RMSE_tuned = np.sqrt(mean_squared_error(y_test, pred_tuned))
-R2_tuned = r2_score(y_test, pred_tuned)
 
 print("Best parameters:", grid.best_params_)
-print(f"Tuned RMSE: {RMSE_tuned:.4f}")
-print(f"Tuned R²: {R2_tuned:.4f}")
+
+# store best parameters
+pred_tuned = grid.best_estimator_.predict(Xtest_encoded)
+
+# convert back to dollars
+pred_tuned_dollar = np.expm1(pred_tuned)
+
+# RMSE
+RMSE_log_tuned = np.sqrt(mean_squared_error(y_test, pred_tuned))
+RMSE_dollar_tuned = np.sqrt(mean_squared_error(y_test_dollar, pred_tuned_dollar))
+
+# R2
+R2_log_tuned = r2_score(y_test, pred_tuned)
+
+# MAE
+MAE_dollar_tuned = mean_absolute_error(y_test_dollar, pred_tuned_dollar)
+
+# MAPE (manual, to avoid divide-by-zero issues)
+MAPE_dollar_tuned = np.mean(np.abs((y_test_dollar - pred_tuned_dollar) / y_test_dollar)) * 100
+
+print(f"RMSE (log): {RMSE_log_tuned:.4f}")
+print(f"RMSE ($): {RMSE_dollar_tuned:.2f} dollars")
+print(f"R² (log): {R2_log_tuned:.4f}")
+print(f"MAE ($): {MAE_dollar_tuned:.2f} dollars")
+print(f"MAPE % ($): {MAPE_dollar_tuned:.2f}%")
 ```
 
-|            |              |           |
-|:----------:|:------------:|:---------:|
-| **Metric** | **Baseline** | **Tuned** |
-|    RMSE    |    0.1264    |  0.1208   |
-|    R\^2    |    0.9029    |  0.9113   |
+|                     |              |             |
+|:-------------------:|:------------:|:-----------:|
+|     **Metric**      | **Baseline** |  **Tuned**  |
+|  RMSE (log scale)   |    0.1264    |   0.1208    |
+| RMSE (dollar scale) | \$21,896.01  | \$19,666.92 |
+|   R² (log scale)    |    0.9029    |   0.9113    |
+| MAE (dollar scale)  | \$15,576.61  | \$13,433.13 |
+| MAPE (dollar scale) |    9.46%     |    8.60%    |
 
 : Comparison of baseline and tuned evaluation metrics {#tbl-tuned}
 
-Both RMSE and R² showed that the tuned model improved in both fit and
-prediction accuracy.
+The tuned model shows an improved performance across both log-scale and
+original dollar-scale metrics. The improvement in RMSE and R²
+demonstrates a better-fitting model. Similarly, the decrease in
+dollar-scale RSME and MAE reflects a lower discrepancy between actual
+and predicted values, leading to more accurate predictions shown by the
+reduced MAPE.
 
 To determine which feature had the greatest impact on the target
 variable, sales price, feature importance was visualized in
@@ -762,10 +841,7 @@ visualization can be found in the interactive graph below.
 #| output: false
 
 # plotly interactive predicted vs actual
-df_pred = pd.DataFrame({
-    'Actual_log': y_test,
-    'Predicted_log': pred_tuned
-})
+df_pred = pd.DataFrame({'Actual_log': y_test, 'Predicted_log': pred_tuned})
 
 df_pred['Actual'] = np.exp(df_pred['Actual_log'])
 df_pred['Predicted'] = np.exp(df_pred['Predicted_log'])
@@ -779,7 +855,7 @@ df_long = pd.DataFrame({
 })
 
 color_map = {'Predicted': 'RoyalBlue', 'Actual': 'PaleGreen'}
-fig = px.scatter(df_long, x = 'Index', y = 'Value',
+fig = px.scatter(df_long, x = 'Index', y = 'Value', trendline = "lowess",
                  color = 'Type', color_discrete_map = color_map,
                  title = "Actual vs Predicted Value of Target Variable (Dollars)",
                  opacity = .8, custom_data = ['Actual', 'Predicted'])
@@ -797,16 +873,21 @@ for trace in fig.data:
 
 fig.update_layout(template = 'plotly_white',
                   xaxis_title = "Data Row Index", yaxis_title = "Sale Price (Dollars)"),
+                
+fig.update_traces(hoverinfo = "skip", hovertemplate = None, selector = dict(mode = "lines")),
+
 fig.show()
 ```
 
 Interactive graph showing predicted vs actual sales price
 
-The model performs consistently across most of the price range. It can
-be observed, however, that as the sales prices approach the upper end of
-the distribution, the difference between the predicted and actual values
-increases. This could be due to the more complex pricing of higher-end
-homes.
+The model performs consistently across most of the price range. A LOWESS
+(Locally Weighted Scatterplot Smoothing) trendline is present. The
+difference between predicted and actual values is less significant along
+the trendline when compared to the difference in the values farther from
+the trendline. This points out that as the sales prices approach the
+upper end of the distribution, model accuracy decreases. This could be
+due to the more complex pricing of higher-end homes.
 
 ### Conclusion
 

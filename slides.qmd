@@ -11,10 +11,12 @@ format:
     scrollable: true
     theme: sky
 bibliography: references.bib
+nocite: |
+  @*
 self-contained: true
 execute: 
   warning: false
-  message: false
+  message: false*
 ---
 
 ## Introduction
@@ -64,7 +66,7 @@ execute:
 ```{=html}
 <style type="text/css">
   #refs {
-    font-size: 5px;
+    font-size: 25px;
 }
 </style>
 ```
