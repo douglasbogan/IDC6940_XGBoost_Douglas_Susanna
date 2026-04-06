@@ -163,6 +163,56 @@ important when a model will be used in lending or tax assessment.
 
 ## Methods
 
+XGBoost, or eXtreme Gradient Boosting, is a tree-based ensemble method
+that is built on the gradient boosting framework. This is where a
+predictive model is created by adding many small decision trees (also
+known as “weak learners”), one decision tree at a time. This is done so
+that each additional tree can focus on correcting the remaining error
+from the trees already created [@ramraj2016experimenting]. Therefore, in
+practice, this process is typically described as minimizing an overall
+objective that combines a loss term (or how far predictions are from the
+actual values) with a regularization term that discourages trees from
+becoming overly complex. This process helps control overfitting while
+preserving the strong predictive power that is desired from the model in
+the first place [@li2021understanding] and [@avanijaa2021prediction]. It
+is worth noting that XGBoost is also different from “plain” boosting
+implementations. This is because XGBoost was engineered for both speed
+and scale on large, structured/tabular datasets. XGBoost uses
+parallelized computation and efficient data organization. This reduces
+lookup time during decision tree construction, and it includes
+sparsity-aware handling, which is useful when dealing with many features
+or very sparse features [@ramraj2016experimenting] and
+[@chen2016xgboost]. Furthermore, these attributes of XGBoost make it
+very distinct from bagging-style ensembles such as random forests.
+Random forests build many trees using randomized feature selection and
+then combine their outputs. However, XGBoost builds an additive sequence
+of trees that, through iterations, will improve the same model fit
+[@moreno2025comparative].
+
+![Overview of XGBoost model process](OverviewXGB.png){#fig-overviewXGB
+alt="Overview of XGBoost model process" fig-align="center"}
+
+@fig-overviewXGB above illustrates the gradient boosting workflow used
+by XGBoost in this study. The model begins with a simple base prediction
+and iteratively fits small decision trees to the remaining residual
+error. Each tree is added to the ensemble to update predictions, and the
+process continues until the stopping criteria are met. The objective
+function combines prediction error with regularization, which helps
+prevent overly complex trees and improves generalization. This
+sequential error‑correction process explains why XGBoost performs well
+on structured tabular data such as the Ames dataset.
+
+An overview of the modeling workflow followed throughout this project
+can be found in @fig-methods below. 
+
+![Overview of method for study](Method.png){#fig-methods
+alt="Overview of method for study" fig-align="center" width="5in"}
+
+The process begins with data selection and preprocessing, followed by
+model training and hyperparameter tuning. This workflow ensures a
+consistent, reproducible pipeline from raw data to final model
+assessment. These steps are explained in detail below.
+
 #### Study Design: Model and Data Selection
 
 This project will be conducted as a supervised regression study aimed at
@@ -198,30 +248,22 @@ ensemble models such as XGBoost. One‑hot encoding is widely used in
 housing price prediction studies and also supports efficient modeling of
 sparse features [@avanijaa2021prediction].
 
-#### Model Training
+#### Model Training and Hyperparameter Tuning
 
 The dataset will be divided into training and testing sets using an
 80%/20% split. The training subset will be used to fit model parameters,
 while the testing subset will be reserved for evaluating performance
-during model development. Model performance will be evaluated using the
-coefficient of determination (R²), Mean Absolute Error (MAE), Mean
-Absolute Percentage Error (MAPE), and Root Mean Squared Error (RMSE).
-These metrics are standard in the housing price prediction literature
-and allow comparison with prior studies evaluating XGBoost and related
-models [@bentejac2019comparative]; [@sharma2024optimal].
-
-#### Hyperparameter Tuning
-
-Because prior research demonstrates that XGBoost performance is
-sensitive to hyperparameter tuning, the modeling process will include a
-hyperparameter tuning stage rather than relying on default settings.
-Hyperparameter tuning will be performed using cross‑validated grid
-search. The search will focus on key parameters that control ensemble
-complexity and learning behavior, including the number of boosting
-iterations, maximum tree depth, and learning rate. This tuning strategy
-follows guidance from the research literature, which emphasizes
-prioritizing high‑impact parameters to improve model performance while
-maintaining processing efficiency where possible [@kapoor2021simple].
+during model development. Because prior research demonstrates that
+XGBoost performance is sensitive to hyperparameter tuning, the modeling
+process will include a hyperparameter tuning stage rather than relying
+on default settings. Hyperparameter tuning will be performed using
+cross‑validated grid search. The search will focus on key parameters
+that control ensemble complexity and learning behavior, including the
+number of boosting iterations, maximum tree depth, and learning rate.
+This tuning strategy follows guidance from the research literature,
+which emphasizes prioritizing high‑impact parameters to improve model
+performance while maintaining processing efficiency where possible
+[@kapoor2021simple].
 
 #### Deployment and Evaluation
 
@@ -230,7 +272,13 @@ interpretability will also be prioritized. Feature importance measures
 produced by the trained XGBoost model will be used to identify the most
 influential predictors of housing prices. The ranking of the most
 important features will support both evaluation and comparison with
-findings in the research papers [@ramraj2016experimenting].
+findings in the research papers [@ramraj2016experimenting]. Model
+performance will be evaluated using the coefficient of determination
+(R²), Mean Absolute Error (MAE), Mean Absolute Percentage Error (MAPE),
+and Root Mean Squared Error (RMSE). These metrics are standard in the
+housing price prediction literature and allow comparison with prior
+studies evaluating XGBoost and related models
+[@bentejac2019comparative]; [@sharma2024optimal].
 
 ## Analysis and Results
 
@@ -256,7 +304,7 @@ Ames, Iowa. There are 81 features (including the unique identifier
 defined from the original Kaggle competition data_description.txt file
 located on
 [GitHub](https://raw.githubusercontent.com/rehassachdeva/House-Prices-Advanced-Regression-Techniques---Kaggle-Competition/refs/heads/master/data_description.txt).
-Since several categorical variables contain a category NA that is
+Since several categorical variables contain a category "NA" that is
 treated as null by the pandas library, the NA filter is set to False
 when reading the CSV file to avoid it being treated as missing data. The
 categories that exist in the data descriptions but not in the train.csv
@@ -285,7 +333,6 @@ import xgboost as xgb
 import plotly.express as px
 import time
 import statsmodels.api as sm
-import plotly.io as pio 
 import joblib 
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import OneHotEncoder
@@ -316,7 +363,7 @@ Cat = read.csv("Categorical_Description.csv")
 datatable(Cat, options = list(pageLength = 5), rownames = FALSE, filter = 'top')
 ```
 
-Categorical Variables in the Dataset
+Categorical variables in the dataset
 :::
 
 ------------------------------------------------------------------------
@@ -331,7 +378,7 @@ Numb = read.csv("Numerical_Description.csv")
 datatable(Numb, options = list(pageLength = 10), rownames = FALSE, filter = 'top')
 ```
 
-Numerical Variables in the Dataset
+Numerical variables in the dataset
 :::
 
 From the information, it is observed that MSSubClass is listed as an
@@ -340,8 +387,8 @@ will require encoding. Additionally, LotFrontage, MasVnrArea, and
 GarageYrBlt are numerical data but stored as categorical data, possibly
 due to missing or null data read as a string when the CSV file was
 loaded. No other missing values were found. Examining the unique values
-presented also shows Electrical has an additional category NA, which is
-not defined. A closer look at these columns is necessary to determine
+presented also shows Electrical has an additional category "NA", which
+is not defined. A closer look at these columns is necessary to determine
 how to handle them in preprocessing. A summary of possible action can be
 found in @tbl-NA below.
 
@@ -354,9 +401,9 @@ found in @tbl-NA below.
 non_categorical = raw[['LotFrontage', 'MasVnrArea', 'GarageYrBlt']]
 
 for col in non_categorical:
-    print(f"Count of NA in '{col}': {raw[col].value_counts().get("NA", 0)}")
+    print(f"Count of NA in '{col}': {raw[col].value_counts().get('NA', 0)}")
 
-print(f"Count of NA in 'Electrical': {raw['Electrical'].value_counts().get("NA", 0)}")
+print(f"Count of NA in 'Electrical': {raw['Electrical'].value_counts().get('NA', 0)}")
 ```
 
 |             |                  |                           |
@@ -371,7 +418,7 @@ print(f"Count of NA in 'Electrical': {raw['Electrical'].value_counts().get("NA",
 
 LotFrontage and MasVnrArea both could make sense at 0 to imply no
 distance. GarageYrBlt matching with YearBuilt would be applying the same
-logic as YearRemodAdd. Finally, Electrical’s NA could be eliminated
+logic as YearRemodAdd. Finally, Electrical’s "NA" could be eliminated
 since there is only one occurrence, or changed into the highest category
 value. Before proceeding with preprocessing or making final
 determinations on how to handle these NA values, the target variable and
@@ -383,16 +430,18 @@ correlations amongst the variables should also be examined.
 #| output: false
 
 # distribution of target variable
+plt.figure(figsize=(6,6))
 raw['SalePrice'].plot(kind = 'hist', bins = 30, color = 'steelblue', edgecolor = 'black', title = "Sale Price")
 plt.show()
 ```
 
 ![Distribution of the target variable, SalePrice, in dollars
-(\$)](FinalFigures/target-1.png){#fig-target fig-align="center"}
+(\$)](FinalFigures/target-1.png){#fig-target fig-align="center"
+width="5in"}
 
-In @fig-target above, the target variable SalePrice appears
-right-skewed, and may benefit from log transformation. The result of
-this suggestion is compared in @fig-log below.
+In @fig-target above, the target variable SalePrice appears right-skewed
+and may benefit from a log transformation. The result of this suggestion
+is compared in @fig-log below.
 
 ```{python log, fig.path="FinalFigures/", fig.format='png'}
 #| message: false
@@ -663,7 +712,7 @@ print(f"MAPE % ($): {MAPE_dollar:.2f}%")
 
 The low value in RMSE indicates the model's strength in predicting sales
 price, having only an average discrepancy between actual and predicted
-values of \$21,986 for the larger errors. Te absolute error on an
+values of \$21,986 for the larger errors. The absolute error on an
 average home varies by about \$15,577, according to the MAE, with a
 9.46% error shown with MAPE. Additionally, these results indicate that
 the model already explains 90% of the variance for the target variable.
@@ -734,7 +783,8 @@ grid = joblib.load("XGB_GridSearch.pkl")
 print("Best parameters:", grid.best_params_)
 ```
 
-After 30 to 60 minutes, the following best parameters were identified:
+After approximately 30 minutes, the following best parameters were
+identified:
 
 -   colsample_bytree: 0.7
 -   learning_rate: 0.05
@@ -758,8 +808,6 @@ against the baseline model. The tuned evaluation metrics can be found in
 #| output: false
 
 # evaluate tuned
-
-print("Best parameters:", grid.best_params_)
 
 # store best parameters
 pred_tuned = grid.best_estimator_.predict(Xtest_encoded)
@@ -801,7 +849,7 @@ print(f"MAPE % ($): {MAPE_dollar_tuned:.2f}%")
 The tuned model shows an improved performance across both log-scale and
 original dollar-scale metrics. The improvement in RMSE and R²
 demonstrates a better-fitting model. Similarly, the decrease in
-dollar-scale RSME and MAE reflects a lower discrepancy between actual
+dollar-scale RMSE and MAE reflects a lower discrepancy between actual
 and predicted values, leading to more accurate predictions shown by the
 reduced MAPE.
 
@@ -824,7 +872,7 @@ plt.show()
 
 ![20 most influential features on
 SalePrice](FinalFigures/important-4.png){#fig-important
-fig-align="center"}
+fig-align="center" width="6in"}
 
 The top three most influential factors include LotArea, LotFrontage, and
 GrLivArea, which highlight the importance that the lot size and living
@@ -833,9 +881,9 @@ area have on the sale price of a home in Ames, Iowa.
 To further evaluate model performance, actual sales prices were compared
 to the predicted values after converting the log-transformed predictions
 back to the original unit, U.S. Dollars (\$). An interactive
-visualization can be found in the interactive graph below.
+visualization can be found in the graph below.
 
-```{python plotly}
+```{python}
 #| message: false
 #| warning: false
 #| output: false
@@ -890,6 +938,42 @@ upper end of the distribution, model accuracy decreases. This could be
 due to the more complex pricing of higher-end homes.
 
 ### Conclusion
+
+This capstone project demonstrates that the XGBoost machine learning
+model can produce strong, practical real estate sale price predictions
+when applied to a well-prepared tabular housing dataset and evaluated
+with standard regression metrics. After addressing a small set of
+missing values, correcting data types, applying one‑hot encoding for
+categorical variables, and log‑transforming the target to reduce
+skewness, the baseline XGBoost model could already achieve high
+explanatory power and relatively low error in dollar terms. Once the
+baseline model was established, hyperparameter tuning provided a clear,
+measurable improvement across the full metric set. Tuning lowered RMSE
+and MAE while also reducing percentage error (MAPE) and slightly
+increasing R². These metrics indicated a more accurate and
+better‑fitting model overall. Feature importance results further support
+the XGBoost model’s practical value by highlighting drivers of price.
+Lot size, frontage, and above‑ground living area were revealed as some
+of the most influential predictors. This aligns with how buyers and
+sellers commonly determine value. Regarding implications, these results
+suggest that a tuned XGBoost model can serve as a reliable tool for
+making valuations, especially for typical homes in the central range of
+the distribution. However, the predicted versus actual comparison also
+indicates that errors increase toward the high end of sales prices,
+where unique property characteristics and scarcity effects are harder to
+capture with the available structured features. Moreover, key
+limitations include reliance on the provided portion of the Ames housing
+competition data (train.csv only), a single modeling approach (XGBoost)
+rather than a multi‑model benchmark, and the use of only structured
+variables. This leaves potentially valuable unstructured variables
+unexplored, such as property images or richer neighborhood context. Even
+so, the project’s results are a successful demonstration of an
+end‑to‑end, reproducible gradient‑boosted tree model. These results
+motivate future additional research. Expanding validation beyond one
+market dataset, comparing against alternative models, and incorporating
+additional structured and unstructured features to further improve
+accuracy could all be explored and subsequently built upon the
+successful work laid out in this capstone analysis. 
 
 ## References
 
@@ -1075,7 +1159,7 @@ into value drivers while tightening forecasts. In conclusion, XGBoost is
 a strong contender as a machine learning model for house price
 predictions [@moreno2025comparative].
 
-#### Experimenting XGBoost Algorithm for Prediction and Classification of Different Datasets:
+#### Experimenting XGBoost Algorithm for Prediction and Classification of Different Datasets
 
 This research paper gives an analysis of different advantages of XGBoost
 as a machine learning methodology. XGBoost is presented in this research

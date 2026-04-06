@@ -21,39 +21,92 @@ execute:
 
 ## Introduction
 
--   Develop a storyline that captures attention and maintains interest.
+-   **The Why:** Predicting real estate sales prices affects those who buy, sell, and/or finance properties, including local governments
+-   **The Business Question:** How well can a machine learning model like XGBoost predict real estate sale prices using a transaction-level dataset from a metropolitan market, and which features most influence those predictions?
+-   **Overview:** Use XGBoost and a portion of Ames Housing datset
 
--   Your audience is your peers
-
--   Clearly state the problem or question you're addressing.
-
--   Introduce why it is relevant needs.
-
--   Provide an overview of your approach.
+![](Method.png){fig-align="center"}
 
 ## Methods
 
--   Detail the models or algorithms used.
+-   **Model:** eXtreme Gradient Boosting (XGBoost)
+    -   Great for structured, tabular data
+    -   Salable and efficient
+    -   Built-in mechanisms to prevent overfitting
 
--   Justify your choices based on the problem and data.
+![](OverviewXGB.png){fig-align="center"}
 
 ## Data Exploration and Visualization
 
--   Describe your data sources and collection process.
+-   Kaggle dataset based on Ames Housing datset sourced from homes in Ames, Iowa, USA
+    -   train.csv file with 1,460 rows and 81 features
+-   Many categorical variables with a category "NA", so NA filter was set to False to not automatically assign these as missing data
+    -   Reassigned true null values for 4 features
 
--   Present initial findings and insights through visualizations.
+        -   LotFrontage (259) & MasVnrArea (8) became 0
 
--   Highlight unexpected patterns or anomalies.
+        -   GarageYrBlt (81) became YearBuilt
+
+        -   Electrical (1) was removed
+
+## Data Exploration & Visualization (continued)
+
+-   Skewness found in target variable SalePrice resolved with log transformation
+
+![](FinalFigures/log-2.png){fig-align="center"}
+
+## Data Exploration & Visualization (continued)
+
+-   GarageArea & GarageCars highly correlated
+    -   GarageArea dropped - common to consider garages by \# cars that could fit vs area
+
+![](FinalFigures/correlation-3.png){fig-align="center"}
 
 ## Modeling and Results
 
--   Explain your data preprocessing and cleaning steps.
+-   **Overview:**
 
--   Present your key findings in a clear and concise manner.
+![](Modeling.png){fig-align="center"}
 
--   Use visuals to support your claims.
+## Modeling & Results (continued)
 
--   **Tell a story about what the data reveals.**
+-   **Preprocessing:**
+    -   Handled missing values,
+    -   Reduce multicollinarity by dropping the highly correlated column
+    -   Log transformation on target variable to reduce skewness
+-   **Split:** 80%/20%
+-   **Encoding:** One-hot encoding for categorical variables
+-   **Hyperparameter Tuning:** GridSearchCV
+-   **Evaluation Metrics:** RMSE, R², MAE, MAPE
+
+## Modeling & Results (continued)
+
+-   Baseline established first, then tuned from GridSearchCV:
+
+|                     |              |                 |
+|:-------------------:|:------------:|:---------------:|
+|     **Metric**      | **Baseline** |    **Tuned**    |
+|  RMSE (log scale)   |    0.1264    |   **0.1208**    |
+| RMSE (dollar scale) | \$21,896.01  | **\$19,666.92** |
+|   R² (log scale)    |    0.9029    |   **0.9113**    |
+| MAE (dollar scale)  | \$15,576.61  | **\$13,433.13** |
+| MAPE (dollar scale) |    9.46%     |    **8.60%**    |
+
+-   **RMSE:** average discrepancy between actual and predicted values for larger errors
+    -   Log scale & dollar (\$) scale applied for interpretability
+-   **MAE:** Absolute error on average home
+-   **MAPE:** Absolute error on average home %
+-   **R²:** Variance of the target variable explained (model fit)
+
+## Modeling & Results (continued)
+
+-   Most important features
+
+![](FinalFigures/important-4.png){fig-align="center"}
+
+## Modeling & Results (continued)
+
+-   Actual vs predicted values
 
 ## Conclusion
 
