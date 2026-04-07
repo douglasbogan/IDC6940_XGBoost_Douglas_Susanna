@@ -190,7 +190,7 @@ of trees that, through iterations, will improve the same model fit
 [@moreno2025comparative].
 
 ![Overview of XGBoost model process](OverviewXGB.png){#fig-overviewXGB
-alt="Overview of XGBoost model process" fig-align="center"}
+fig-align="center"}
 
 @fig-overviewXGB above illustrates the gradient boosting workflow used
 by XGBoost in this study. The model begins with a simple base prediction
@@ -206,7 +206,7 @@ An overview of the modeling workflow followed throughout this project
 can be found in @fig-methods below. 
 
 ![Overview of method for study](Method.png){#fig-methods
-alt="Overview of method for study" fig-align="center" width="5in"}
+fig-align="center" width="5in"}
 
 The process begins with data selection and preprocessing, followed by
 model training and hyperparameter tuning. This workflow ensures a
@@ -430,7 +430,7 @@ correlations amongst the variables should also be examined.
 #| output: false
 
 # distribution of target variable
-plt.figure(figsize=(6,6))
+plt.figure(figsize = (6,6))
 raw['SalePrice'].plot(kind = 'hist', bins = 30, color = 'steelblue', edgecolor = 'black', title = "Sale Price")
 plt.show()
 ```
@@ -607,6 +607,16 @@ print("X_test:", X_test.shape)
 print("y_train:", y_train.shape)
 ```
 
+```{python}
+#| message: false
+#| warning: false
+#| eval: false
+
+# save results as file for slides
+joblib.dump(y_test, "y_test.pkl")
+print("Saved y_test to y_test.pkl")
+```
+
 Finally, categorical variables were encoded using one-hot encoding,
 which avoids incorrectly imposing an ordinal relationship in the data.
 XGBoost, being a tree-based model, is not reliant on or heavily impacted
@@ -650,6 +660,16 @@ print("X_test:", X_test.shape)
 print("y_train:", y_train.shape)
 ```
 
+```{python}
+#| message: false
+#| warning: false
+#| eval: false
+
+# save results as file for slides
+joblib.dump(Xtest_encoded, "Xtest_encoded.pkl")
+print("Saved Xtest_encoded to Xtest_encoded.pkl")
+```
+
 #### Model Training
 
 XGBoost was selected as the sole model for this dataset due to its
@@ -677,8 +697,8 @@ pred = model.predict(Xtest_encoded)
 # evaluate default as baseline
 
 # convert back to dollars
-y_test_dollar = np.expm1(y_test)
-pred_dollar = np.expm1(pred)
+y_test_dollar = np.exp(y_test)
+pred_dollar = np.exp(pred)
 
 # RMSE
 RMSE_log = np.sqrt(mean_squared_error(y_test, pred))
@@ -726,7 +746,6 @@ parameters that can be further examined in the code block below.
 ```{python}
 #| message: false
 #| warning: false
-#| output: false
 #| eval: false
 
 # tracking time of code block execution
@@ -763,7 +782,6 @@ print(timedelta(seconds = end_time - start_time))
 ```{python}
 #| message: false
 #| warning: false
-#| output: false
 #| eval: false
 
 # save results as file to avoid lengthly re-renders
@@ -775,7 +793,6 @@ print("Saved GridSearchCV to XGB_GridSearch.pkl")
 #| message: false
 #| warning: false
 #| output: false
-#| eval: true
 
 # load file
 grid = joblib.load("XGB_GridSearch.pkl")
@@ -813,7 +830,7 @@ against the baseline model. The tuned evaluation metrics can be found in
 pred_tuned = grid.best_estimator_.predict(Xtest_encoded)
 
 # convert back to dollars
-pred_tuned_dollar = np.expm1(pred_tuned)
+pred_tuned_dollar = np.exp(pred_tuned)
 
 # RMSE
 RMSE_log_tuned = np.sqrt(mean_squared_error(y_test, pred_tuned))
@@ -891,6 +908,7 @@ visualization can be found in the graph below.
 # plotly interactive predicted vs actual
 df_pred = pd.DataFrame({'Actual_log': y_test, 'Predicted_log': pred_tuned})
 
+# change to dollar scale
 df_pred['Actual'] = np.exp(df_pred['Actual_log'])
 df_pred['Predicted'] = np.exp(df_pred['Predicted_log'])
 

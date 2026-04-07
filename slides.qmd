@@ -10,14 +10,23 @@ format:
     smaller: true
     scrollable: true
     theme: sky
+    embed-resources: true
+    code-fold: true
 bibliography: references.bib
 nocite: |
   @*
-self-contained: true
+self-contained: false
 execute: 
   warning: false
-  message: false*
+  message: false
 ---
+
+```{r}
+#| echo: false
+# run this comment in the console 
+#library(reticulate)
+#use_python(Sys.which("python"), required = TRUE)
+```
 
 ## Introduction
 
@@ -36,7 +45,7 @@ execute:
 
 ![](OverviewXGB.png){fig-align="center"}
 
-## Data Exploration and Visualization
+## Data Exploration & Visualization
 
 -   Kaggle dataset based on Ames Housing datset sourced from homes in Ames, Iowa, USA
     -   train.csv file with 1,460 rows and 81 features
@@ -60,7 +69,7 @@ execute:
 -   GarageArea & GarageCars highly correlated
     -   GarageArea dropped - common to consider garages by \# cars that could fit vs area
 
-![](FinalFigures/correlation-3.png){fig-align="center"}
+![](FinalFigures/correlation-3.png){style="width: 100%; height: 140vh; object-fit: cover; object-position: center; overflow: hidden;" fig-align="center" width="90%"}
 
 ## Modeling and Results
 
@@ -100,19 +109,76 @@ execute:
 
 ## Modeling & Results (continued)
 
--   Most important features
-
 ![](FinalFigures/important-4.png){fig-align="center"}
-
-## Modeling & Results (continued)
-
--   Actual vs predicted values
 
 ## Conclusion
 
--   Summarize your key findings.
+```{python}
+#| echo: false
+#| warning: false
+#| message: false
+#| output: false
 
--   Discuss the implications of your results.
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import joblib 
+
+# recall variables
+y_test = joblib.load("y_test.pkl")
+Xtest_encoded = joblib.load("Xtest_encoded.pkl")
+grid = joblib.load("XGB_GridSearch.pkl")
+pred_tuned = grid.best_estimator_.predict(Xtest_encoded)
+
+# plotly interactive predicted vs actual
+df_pred = pd.DataFrame({'Actual_log': y_test, 'Predicted_log': pred_tuned})
+
+# change to dollar scale
+df_pred['Actual'] = np.exp(df_pred['Actual_log'])
+df_pred['Predicted'] = np.exp(df_pred['Predicted_log'])
+
+df_long = pd.DataFrame({
+    'Value': pd.concat([df_pred['Actual'], df_pred['Predicted']], ignore_index=True),
+    'Type': (['Actual'] * len(df_pred)) + (['Predicted'] * len(df_pred)),
+    'Index': list(range(len(df_pred))) * 2,
+    'Actual': list(df_pred['Actual']) * 2,
+    'Predicted': list(df_pred['Predicted']) * 2
+})
+
+color_map = {'Predicted': 'RoyalBlue', 'Actual': 'PaleGreen'}
+fig = px.scatter(df_long, x = 'Index', y = 'Value', trendline = "lowess",
+                 color = 'Type', color_discrete_map = color_map,
+                 title = "Actual vs Predicted Value of Target Variable (Dollars)",
+                 opacity = .8, custom_data = ['Actual', 'Predicted'])
+
+for trace in fig.data:
+    if trace.name == "Predicted":
+        trace.hovertemplate = (
+            "Row Index: %{x}<br>"
+            "Actual: $%{customdata[0]:,.2f}<br>"
+            "Predicted: $%{customdata[1]:,.2f}<br>")
+    else:
+        trace.hovertemplate = None
+        trace.hoverinfo = "skip"
+
+fig.update_layout(template = 'plotly_white',
+                  xaxis_title = "Data Row Index", 
+                  yaxis_title = "Sale Price (Dollars)"),
+
+fig.update_traces(hoverinfo = "skip", hovertemplate = None, 
+                  selector = dict(mode="lines"))
+```
+
+## Conclusion (continued)
+
+-   **The Business Question:** How well can a machine learning model like XGBoost predict real estate sale prices using a transaction-level dataset from a metropolitan market, and which features most influence those predictions?
+
+-   **Limitations:**
+
+    -   Actual vs predicted increases toward the high end of sales prices
+    -   Limited dataset
+    -   Single modeling approach (XGBoost)
+    -   Only structured variables rather than unstructured variables (i.e. property images)  
 
 ## References
 
@@ -126,3 +192,8 @@ execute:
 
 ::: {#refs}
 :::
+
+## Appendix: Disclaimers
+
+-   **Conflicts of Interest:** The authors declare no conflicts of interest.
+-   **Artificial Intelligence (AI):** AI was used solely for brainstorming or suggesting revisions to writing or code. All writing and code presented is the work of the authors unless otherwise cited in references.
