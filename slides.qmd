@@ -47,6 +47,9 @@ execute:
 
 ## Data Exploration & Visualization
 
+::: panel-tabset
+## Data
+
 -   Kaggle dataset based on Ames Housing datset sourced from homes in Ames, Iowa, USA
     -   train.csv file with 1,460 rows and 81 features
 -   Many categorical variables with a category "NA", so NA filter was set to False to not automatically assign these as missing data
@@ -58,26 +61,26 @@ execute:
 
         -   Electrical (1) was removed
 
-## Data Exploration & Visualization (continued)
+## Skewness
 
 -   Skewness found in target variable SalePrice resolved with log transformation
 
 ![](FinalFigures/log-2.png){fig-align="center"}
 
-## Data Exploration & Visualization (continued)
+## Correlations
 
--   GarageArea & GarageCars highly correlated
-    -   GarageArea dropped - common to consider garages by \# cars that could fit vs area
+-   GarageArea & GarageCars highly correlated, dropped GarageArea
+    -   Common to consider garages by \# cars that could fit vs area
 
-![](FinalFigures/correlation-3.png){style="width: 100%; height: 140vh; object-fit: cover; object-position: center; overflow: hidden;" fig-align="center" width="90%"}
+![](FinalFigures/correlation-3.png){fig-align="center" width="90%"}
+:::
 
 ## Modeling and Results
 
--   **Overview:**
+::: panel-tabset
+## Overview
 
 ![](Modeling.png){fig-align="center"}
-
-## Modeling & Results (continued)
 
 -   **Preprocessing:**
     -   Handled missing values,
@@ -88,18 +91,16 @@ execute:
 -   **Hyperparameter Tuning:** GridSearchCV
 -   **Evaluation Metrics:** RMSE, R², MAE, MAPE
 
-## Modeling & Results (continued)
+## Results
 
--   Baseline established first, then tuned from GridSearchCV:
-
-|                     |              |                 |
-|:-------------------:|:------------:|:---------------:|
-|     **Metric**      | **Baseline** |    **Tuned**    |
-|  RMSE (log scale)   |    0.1264    |   **0.1208**    |
-| RMSE (dollar scale) | \$21,896.01  | **\$19,666.92** |
-|   R² (log scale)    |    0.9029    |   **0.9113**    |
-| MAE (dollar scale)  | \$15,576.61  | **\$13,433.13** |
-| MAPE (dollar scale) |    9.46%     |    **8.60%**    |
+|                     |              |                          |
+|:-------------------:|:------------:|:------------------------:|
+|     **Metric**      | **Baseline** | **Tuned (GridSearchCV)** |
+|  RMSE (log scale)   |    0.1264    |        **0.1208**        |
+| RMSE (dollar scale) | \$21,896.01  |     **\$19,666.92**      |
+|   R² (log scale)    |    0.9029    |        **0.9113**        |
+| MAE (dollar scale)  | \$15,576.61  |     **\$13,433.13**      |
+| MAPE (dollar scale) |    9.46%     |        **8.60%**         |
 
 -   **RMSE:** average discrepancy between actual and predicted values for larger errors
     -   Log scale & dollar (\$) scale applied for interpretability
@@ -107,11 +108,16 @@ execute:
 -   **MAPE:** Absolute error on average home %
 -   **R²:** Variance of the target variable explained (model fit)
 
-## Modeling & Results (continued)
+## Important Features
 
 ![](FinalFigures/important-4.png){fig-align="center"}
+:::
 
 ## Conclusion
+
+::: {.panel-tabset}
+
+## Actual vs Predicted
 
 ```{python}
 #| echo: false
@@ -169,16 +175,25 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
                   selector = dict(mode="lines"))
 ```
 
-## Conclusion (continued)
+## Summary
 
 -   **The Business Question:** How well can a machine learning model like XGBoost predict real estate sale prices using a transaction-level dataset from a metropolitan market, and which features most influence those predictions?
 
--   **Limitations:**
+-   **Data:** Ames Housing dataset for Ames, Iowa
 
-    -   Actual vs predicted increases toward the high end of sales prices
-    -   Limited dataset
-    -   Single modeling approach (XGBoost)
-    -   Only structured variables rather than unstructured variables (i.e. property images)  
+-   **Model:** XGBoost
+
+## Limitations
+-   Actual vs predicted increases toward the high end of sales prices
+-   Limited dataset
+-   Single modeling approach (XGBoost)
+-   Only structured variables rather than unstructured variables (i.e. property images)  
+
+:::
+
+## Appendix
+
+::: {.panel-tabset}
 
 ## References
 
@@ -193,7 +208,11 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
 ::: {#refs}
 :::
 
-## Appendix: Disclaimers
+## Disclaimers
 
 -   **Conflicts of Interest:** The authors declare no conflicts of interest.
 -   **Artificial Intelligence (AI):** AI was used solely for brainstorming or suggesting revisions to writing or code. All writing and code presented is the work of the authors unless otherwise cited in references.
+
+## End
+
+:::
