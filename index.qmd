@@ -1,6 +1,6 @@
 ---
 title: "Predicting Housing Prices with XGBoost Methodology"
-subtitle: "Capstone Projects for Data Science - Spring 2026"
+subtitle: "Capstone Projects for Data Science"
 author: "Douglas Bogan and Susanna Brown (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
 engine: knitr
@@ -56,21 +56,20 @@ features as Lot Area, Lot Frontage, Year Built, Month Sold, and Overall
 Condition. Several reviewed studies show that model performance and the
 value of specific features depend heavily on local context
 [@sharma2024optimal] and [@zaki2022house]. By focusing on one market,
-this project is able to delve deeper into specific features of
-properties in a particular geographic area, rather than have those
-unique features lose meaning due to the generalization that occurs when
-evaluating multiple markets. The goal is a careful and well-documented
-application of a machine learning model like XGBoost that produces a
-reliable predictive model for that market, along with lessons in data
-selection, preprocessing, model training, and hyperparameter tuning that
-others can adapt. This project will take a single comprehensive
-transaction dataset for a metropolitan area, perform standard
-preprocessing, training the XGBoost model, and then implement
-hyperparameter tuning with a practical tuning workflow that balances
-speed and thoroughness wherever possible. The final deliverable will
-include a clear analysis of predictive performance, a discussion of the
-most influential features, and practical notes for deploying the XGBoost
-model in a chosen market.
+this project can delve deeper into specific property features in a
+particular geographic area, rather than have those unique features lose
+meaning due to the generalization that occurs when evaluating multiple
+markets. The goal is a careful and well-documented application of a
+machine learning model like XGBoost that produces a reliable predictive
+model for that market, along with lessons in data selection,
+preprocessing, model training, and hyperparameter tuning that others can
+adapt. This project will take a single comprehensive transaction dataset
+for a metropolitan area, perform standard preprocessing, train the
+XGBoost model, and then implement hyperparameter tuning with a practical
+workflow that balances speed and thoroughness wherever possible. The
+final deliverable will include a clear analysis of predictive
+performance, a discussion of the most influential features, and
+practical notes for deploying the XGBoost model in a chosen market.
 
 ### Literature Review
 
@@ -79,9 +78,9 @@ model in a chosen market.
 Research indicates that XGBoost is a practical choice for tabular data
 [@chen2016xgboost]. XGBoost is engineered for speed, handles sparse
 inputs, is scalable, and includes regularization that helps control
-overfitting. Those model features matter when dealing with real estate
-data because transaction tables often include many categorical features
-and sparse data. Previous research reinforces the point that XGBoost is
+overfitting. Those model features matter when handling real estate data
+because transaction tables often include many categorical features and
+sparse data. Previous research reinforces the point that XGBoost is
 powerful, but tuning matters. [@bentejac2019comparative] shows XGBoost
 ranks highly when hyperparameters are optimized, but can perform poorly
 without additional tuning. This fact encourages a careful, reproducible
@@ -518,11 +517,29 @@ reflect our goal of developing a model that can accurately predict sales
 price and answer our research question: *How well can a machine learning
 model like XGBoost predict real estate sale prices using a
 transaction-level dataset from a metropolitan market, and which features
-most influence those predictions?* While R² reflects how well the model
-fits the data, MAE calculates the average error in terms of the original
-scale, MAPE calculates the average error as a percentage, and RMSE shows
-how accurately the model predicts the target variable. [@fig-analysis]
-below provides an overview of the process performed in this study.
+most influence those predictions?*
+
+The metrics used in this project were chosen to evaluate the models both
+statistically and for real-world interpretability. Log-scale metrics
+assess model performance from the same scale the model was trained on to
+ensure fair comparison. On the other hand, U.S. dollar-scale metrics
+translate these values into a scale that is easier to interpret.
+Together, these provide a comprehensive and defensive evaluation of
+model performance. RMSE is shown in both log and dollar scales to show
+how accurately the model predicts the target variable, the sales price.
+R² reflects how well the model fits the data by explaining the
+proportion of variance explained by the transformed model, and thus is
+on a log-scale. MAE and MAPE are both evaluated in dollar scale for
+interpretability. MAE calculates the average error in terms of the
+original scale and is included to complement RMSE, which is more
+influenced by outliers. Finally, MAPE is evaluated to demonstrate the
+average sales price error as a percentage. Although MAPE will be
+sensitive to lower-priced homes, it provides a useful measure of
+accuracy when interpreted carefully and in addition to the other
+metrics.
+
+[@fig-analysis] below provides an overview of the process performed in
+this study.
 
 ![Overview of process for study](Modeling.png){#fig-analysis
 fig-align="center"}
@@ -535,7 +552,7 @@ a meaningful category rather than to represent missing data. To handle
 this dataset, the steps shown in @tbl-NA above were implemented to fill
 in or remove missing data. Additionally, the data types originally
 stored as an incorrect type, as identified in @tbl-variables and
-@tbl-variables2 were converted to their proper data type.  
+@tbl-variables2, were converted to their proper data type.  
 
 ```{python}
 #| message: false

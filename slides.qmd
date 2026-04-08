@@ -1,6 +1,6 @@
 ---
 title: "Predicting Housing Prices with XGBoost Methodology"
-subtitle: "Capstone Projects for Data Science - Spring 2026"
+subtitle: "Capstone Projects for Data Science"
 author: "Douglas Bogan and Susanna Brown (Advisor: Dr. Cohen)"
 course: Capstone Projects in Data Science
 date: '`r Sys.Date()`'
@@ -32,7 +32,7 @@ execute:
 
 -   **The Why:** Predicting real estate sales prices affects those who buy, sell, and/or finance properties, including local governments
 -   **The Business Question:** How well can a machine learning model like XGBoost predict real estate sale prices using a transaction-level dataset from a metropolitan market, and which features most influence those predictions?
--   **Overview:** Use XGBoost and a portion of Ames Housing datset
+-   **Overview:** Use XGBoost and a portion of Ames Housing dataset
 
 ![](Method.png){fig-align="center"}
 
@@ -84,7 +84,7 @@ execute:
 
 -   **Preprocessing:**
     -   Handled missing values,
-    -   Reduce multicollinarity by dropping the highly correlated column
+    -   Reduce multicollinearity by dropping the highly correlated column
     -   Log transformation on target variable to reduce skewness
 -   **Split:** 80%/20%
 -   **Encoding:** One-hot encoding for categorical variables
@@ -187,7 +187,7 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
 -   Actual vs predicted increases toward the high end of sales prices
 -   Limited dataset
 -   Single modeling approach (XGBoost)
--   Only structured variables rather than unstructured variables (i.e. property images)  
+-   Only structured variables rather than unstructured variables (i.e. property images)
 
 :::
 
@@ -214,5 +214,7 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
 -   **Artificial Intelligence (AI):** AI was used solely for brainstorming or suggesting revisions to writing or code. All writing and code presented is the work of the authors unless otherwise cited in references.
 
 ## End
+
+Q&A
 
 :::
