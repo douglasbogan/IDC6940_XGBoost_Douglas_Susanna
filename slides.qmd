@@ -40,7 +40,7 @@ execute:
 
 -   **Model:** eXtreme Gradient Boosting (XGBoost)
     -   Great for structured, tabular data
-    -   Salable and efficient
+    -   Scalable and efficient
     -   Built-in mechanisms to prevent overfitting
 
 ![](OverviewXGB.png){fig-align="center"}
@@ -82,15 +82,6 @@ execute:
 
 ![](Modeling.png){fig-align="center"}
 
--   **Preprocessing:**
-    -   Handled missing values,
-    -   Reduce multicollinearity by dropping the highly correlated column
-    -   Log transformation on target variable to reduce skewness
--   **Split:** 80%/20%
--   **Encoding:** One-hot encoding for categorical variables
--   **Hyperparameter Tuning:** GridSearchCV
--   **Evaluation Metrics:** RMSE, R², MAE, MAPE
-
 ## Results
 
 |                     |              |                          |
@@ -102,11 +93,10 @@ execute:
 | MAE (dollar scale)  | \$15,576.61  |     **\$13,433.13**      |
 | MAPE (dollar scale) |    9.46%     |        **8.60%**         |
 
--   **RMSE:** average discrepancy between actual and predicted values for larger errors
-    -   Log scale & dollar (\$) scale applied for interpretability
+-   **RMSE:** Average discrepancy between actual & predicted values for larger errors
+-   **R²:** Variance of the target variable explained (model fit)
 -   **MAE:** Absolute error on average home
 -   **MAPE:** Absolute error on average home %
--   **R²:** Variance of the target variable explained (model fit)
 
 ## Important Features
 
@@ -115,8 +105,7 @@ execute:
 
 ## Conclusion
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ## Actual vs Predicted
 
 ```{python}
@@ -184,17 +173,16 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
 -   **Model:** XGBoost
 
 ## Limitations
+
 -   Actual vs predicted increases toward the high end of sales prices
 -   Limited dataset
 -   Single modeling approach (XGBoost)
 -   Only structured variables rather than unstructured variables (i.e. property images)
-
 :::
 
 ## Appendix
 
-::: {.panel-tabset}
-
+:::: panel-tabset
 ## References
 
 ```{=html}
@@ -216,5 +204,4 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
 ## End
 
 Q&A
-
-:::
+::::

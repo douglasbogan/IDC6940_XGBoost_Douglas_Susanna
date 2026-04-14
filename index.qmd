@@ -830,7 +830,7 @@ Although some adjustments and re-evaluations were conducted to ensure an
 efficient GridSearch was performed, once the best parameters were
 identified, they were applied to the final model.
 
-#### Deployment & Evaluation
+#### Deployment and Evaluation
 
 After forming the tuned model, evaluation metrics were re-evaluated
 against the baseline model. The tuned evaluation metrics can be found in
