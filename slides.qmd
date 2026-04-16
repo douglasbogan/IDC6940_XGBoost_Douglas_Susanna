@@ -13,8 +13,6 @@ format:
     embed-resources: true
     code-fold: true
 bibliography: references.bib
-nocite: |
-  @*
 self-contained: false
 execute: 
   warning: false
@@ -36,12 +34,22 @@ execute:
 
 ![](Method.png){fig-align="center"}
 
+## Literature Review
+
+Our Literature Review determined the following in regards to utilizing the XGBoost Model for our dataset:
+
+-   XGBoost is well-suited to tabular housing data, but performance depends on careful tuning [@kapoor2021simple]
+-   Housing studies consistently show XGBoost improves prediction accuracy and supports feature importance interpretation [@sharma2024optimal]
+-   Feature design and validation choices are critical. A single-market focus helps local insight, but sampling must protect rare observations [@zaki2022house]
+-   Deployment calls for interpretability and fairness awareness, including feature rankings and bias checks when using the model in practice [@zhang2022research]
+
 ## Methods
 
--   **Model:** eXtreme Gradient Boosting (XGBoost)
-    -   Great for structured, tabular data
-    -   Scalable and efficient
-    -   Built-in mechanisms to prevent overfitting
+**Model:** eXtreme Gradient Boosting (XGBoost) [@verma2024exploring]
+
+-   Great for structured, tabular data
+-   Scalable and efficient
+-   Built-in mechanisms to prevent overfitting
 
 ![](OverviewXGB.png){fig-align="center"}
 
@@ -55,7 +63,7 @@ execute:
 -   Many categorical variables with a category "NA", so NA filter was set to False to not automatically assign these as missing data
     -   Reassigned true null values for 4 features
 
-        -   LotFrontage (259) & MasVnrArea (8) became 0
+        -   LotFrontage (259) and MasVnrArea (8) became 0
 
         -   GarageYrBlt (81) became YearBuilt
 
@@ -63,13 +71,13 @@ execute:
 
 ## Skewness
 
--   Skewness found in target variable SalePrice resolved with log transformation
+Skewness found in target variable SalePrice resolved with log transformation
 
 ![](FinalFigures/log-2.png){fig-align="center"}
 
 ## Correlations
 
--   GarageArea & GarageCars highly correlated, dropped GarageArea
+-   GarageArea and GarageCars highly correlated, dropped GarageArea
     -   Common to consider garages by \# cars that could fit vs area
 
 ![](FinalFigures/correlation-3.png){fig-align="center" width="90%"}
@@ -93,7 +101,7 @@ execute:
 | MAE (dollar scale)  | \$15,576.61  |     **\$13,433.13**      |
 | MAPE (dollar scale) |    9.46%     |        **8.60%**         |
 
--   **RMSE:** Average discrepancy between actual & predicted values for larger errors
+-   **RMSE:** Average discrepancy between actual and predicted values for larger errors
 -   **R²:** Variance of the target variable explained (model fit)
 -   **MAE:** Absolute error on average home
 -   **MAPE:** Absolute error on average home %
@@ -164,6 +172,13 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
                   selector = dict(mode="lines"))
 ```
 
+## Limitations
+
+-   Actual vs predicted increases toward the high end of sales prices
+-   Limited dataset
+-   Single modeling approach (XGBoost)
+-   Only structured variables rather than unstructured variables (i.e. property images)
+
 ## Summary
 
 -   **The Business Question:** How well can a machine learning model like XGBoost predict real estate sale prices using a transaction-level dataset from a metropolitan market, and which features most influence those predictions?
@@ -171,13 +186,6 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
 -   **Data:** Ames Housing dataset for Ames, Iowa
 
 -   **Model:** XGBoost
-
-## Limitations
-
--   Actual vs predicted increases toward the high end of sales prices
--   Limited dataset
--   Single modeling approach (XGBoost)
--   Only structured variables rather than unstructured variables (i.e. property images)
 :::
 
 ## Appendix
@@ -200,8 +208,4 @@ fig.update_traces(hoverinfo = "skip", hovertemplate = None,
 
 -   **Conflicts of Interest:** The authors declare no conflicts of interest.
 -   **Artificial Intelligence (AI):** AI was used solely for brainstorming or suggesting revisions to writing or code. All writing and code presented is the work of the authors unless otherwise cited in references.
-
-## End
-
-Q&A
 ::::

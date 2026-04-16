@@ -692,8 +692,9 @@ print("Saved Xtest_encoded to Xtest_encoded.pkl")
 XGBoost was selected as the sole model for this dataset due to its
 strong performance with categorical data, efficiency, and resistance to
 overfitting. To establish a baseline for evaluation, the model was first
-trained with default hyperparameters. The baseline results for the
-evaluation metrics can be found in @tbl-baseline below.
+tested with default hyperparameters. The baseline results for the
+evaluation metrics against the testing portion of the split data can be
+found in @tbl-baseline below.
 
 ```{python}
 #| message: false
@@ -757,8 +758,9 @@ the model already explains 90% of the variance for the target variable.
 #### Hyperparameter Tuning
 
 Although currently performing adequately, hyperparameter tuning could
-improve both metrics. GridSearchCV was used to evaluate several
-parameters that can be further examined in the code block below.
+improve the results of the evaluation metrics. GridSearchCV was used to
+evaluate several parameters that can be further examined in the code
+block below.
 
 ```{python}
 #| message: false
@@ -832,9 +834,9 @@ identified, they were applied to the final model.
 
 #### Deployment and Evaluation
 
-After forming the tuned model, evaluation metrics were re-evaluated
-against the baseline model. The tuned evaluation metrics can be found in
-@tbl-tuned below.
+After forming the tuned model, test-set evaluation metrics were
+re-evaluated against the baseline model. The tuned evaluation metrics
+can be found in @tbl-tuned below.
 
 ```{python}
 #| message: false
